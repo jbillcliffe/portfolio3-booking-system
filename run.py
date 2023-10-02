@@ -2,6 +2,7 @@
 # You can delete these comments, but do not change the name of this file
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 from pyfiglet import Figlet
+from termcolor import colored, cprint
 import gspread
 from google.oauth2.service_account import Credentials
 
@@ -15,6 +16,7 @@ CREDS = Credentials.from_service_account_file('creds.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('portfolio3-booking-system')
+
 
 def main_menu_init():
     """
@@ -50,13 +52,27 @@ def validate_choice(user_input,option_choices):
     try:
         [int(user_input) for choice in option_choices]
         if int(user_input) not in option_choices:
-            raise ValueError(f"Available choices are {option_choices.split(', ')} "
+            choices = option_choices.split(", ")
+            raise ValueError(f"Available choices are {choices}"
                              f"You chose {user_input}. Please try again.")
     except ValueError as e:
         print(f"Invalid data: {e}, please try again. \n")
         return False
 
     return True
+
+def validate_string(user_input,breaker):
+
+    try:
+        string_length = len(user_input.strip())
+        if string_length == 0:
+            raise ValueError("Input cannot be left blank.")
+    except ValueError as e:
+        cprint((f"ERROR: {e} please try again. \n"),"red")
+        return False
+    else:
+        if breaker == True:
+            return True
 
 def update_selected_worksheet(data, worksheet):
     """
@@ -78,11 +94,21 @@ def create_new_customer():
     - The new id is based on length, which includes headers. So using
       the length of table provides the correct next number in sequence
     """
+    # Create an id
     customers = SHEET.worksheet("customers").get_all_values()
     customers_length = len(customers)
     new_customer_id = "PT3-CN"+str(customers_length)
-    
-
+    # Init user inputs
+    while True:
+        fname_input = input("Enter customer first name :\n")
+        validate_string(fname_input,False)
+        lname_input = input("Enter customer surname :\n")
+        validate_string(lname_input,False)
+        address_input = input("Enter customer address (excluding postcode) :\n")
+        validate_string(address_input,False)
+        postcode_input = input("Enter customer postcode :\n")
+        validate_string(postcode_input,True)
+       
 def search_customer():
     """
     - Need to define how a search wants to be made.
