@@ -27,11 +27,13 @@ def main_menu_init():
       the user input that has been made
     """
     while True:
-        print ("Please enter the number that corresponds to your request")
-        print ("Would you like to :")
-        print ("1. Create a new customer")
-        print ("2. Search for an existing customer")
-        main_menu_input = input("Choice :\n")
+        # print ("Please enter the number that corresponds to your request")
+        # print ("Would you like to :")
+        # print ("1. Create a new customer")
+        # print ("2. Search for an existing customer")
+        multiline_display_printer(["Please enter the number that corresponds to your request",
+        "Would you like to :","1. Create a new customer","2. Search for an existing customer"])
+        main_menu_input = input("Choice : ")
         if validate_choice(main_menu_input,["1", "2"]):
             if main_menu_input == "1":
                 create_new_customer()
@@ -48,15 +50,20 @@ def validate_choice(user_input,option_choices):
     - If the user_input is found in the option choices, 
       then return a True.
     - Otherwise, False is returned and an error displayed.
+    - Also checks for a blank input
     """
     try:
+        # if input sent, not in list sent
         if user_input not in option_choices:
             choice_display = user_input
+            # if input sent is blank when whitespace removed
             if len(user_input.strip()) == 0:
                 choice_display = "no entry"
+
             raise ValueError(f"Available choices are : "
                              f"{', '.join(option_choices)} "
                              f"You chose {choice_display}.")
+
     except ValueError as e:
         cprint((f"ERROR: {e} Please try again. \n"),"red")
         return False
@@ -64,16 +71,41 @@ def validate_choice(user_input,option_choices):
     return True
 
 def validate_input_string(input_prompt):
+    """
+    - The validator creates a user input within it.
+    - This means the function keeps running until the input is successful
+    - Create input, wait for it to be valid, then return the value
+    - It checks the input for a blank input, otherwise it is OK.
+    - It uses a value sent to the function to create the prompt
+    """
     while True:
         try:
             input_string = input(input_prompt)
+            # if input sent is blank when whitespace removed
             if len(input_string.strip()) == 0:
                 raise ValueError("Input cannot be left blank.")
+        
         except ValueError as e:
             cprint((f"ERROR: {e} please try again. \n"),"red")
             continue
+
+        # if input when whitespace removed still has content,
+        # return the input content
         if len(input_string.strip()) > 0:
             return input_string
+
+def multiline_display_printer(display_list):
+    """
+    - This is to shorten the code where there are multiple print
+      statements in succssion.
+    - instead of print(),print(),print() it is a lot shorter
+    """
+    for x in display_list:
+        print(x)
+
+def search_worksheet(search_this, search_terms):
+    print(search_this)
+    print(search_terms)
 
 def update_selected_worksheet(data, worksheet):
     """
@@ -85,6 +117,8 @@ def update_selected_worksheet(data, worksheet):
     update_worksheet = SHEET.worksheet(worksheet)
     update_worksheet.append_row(data)
     print(f"{worksheet.capitalize()} update made successfully.\n")
+
+
 
 def create_new_customer():
     """
@@ -101,11 +135,11 @@ def create_new_customer():
     customers_length = len(customers)
     new_customer_id = "PT3-CN"+str(customers_length)
     customer_data.append(new_customer_id)
-    # Init user inputs
-    fname_input = validate_input_string("Enter customer first name :\n")
-    lname_input = validate_input_string("Enter customer surname :\n")
-    address_input = validate_input_string("Enter customer address (excluding postcode) :\n")
-    postcode_input = validate_input_string("Enter customer postcode :\n")
+    # Init user inputs with built in validators
+    fname_input = validate_input_string("Enter customer first name : ")
+    lname_input = validate_input_string("Enter customer surname : ")
+    address_input = validate_input_string("Enter customer address (excluding postcode) : ")
+    postcode_input = validate_input_string("Enter customer postcode : ")
     print(fname_input,lname_input,address_input,postcode_input)
 
 def search_customer():
@@ -118,9 +152,37 @@ def search_customer():
     - 5. Order (by the order_id, eg.PT3-O1)
     - 6. Invoice (by the invoice_id, eg.PT3-I1)
     - 7. Item (by the item_id, eg.PT3-SN1)
+    - Then run the user choice through the validator based 
+      on choices sent in the array (1-7)
     """
-    print("Search a customer")
-
+    while True:
+        print ("\nPlease enter the number that corresponds to your request")
+        print ("Select your search criteria :")
+        print ("1. Customer Name (First and last included)")
+        print ("2. Address (Searches all but postcode)")
+        print ("3. Postcode")
+        print ("4. Customer Number (Starts. PT3-C*)")
+        print ("5. Order Number (Starts. PT3-O*)")
+        print ("6. Invoice Number (Starts. PT3-I*)")
+        print ("7. Item Number (Starts. PT3-SN*)")
+        customer_search_input = input("Choice : ")
+        if validate_choice(customer_search_input,["1","2","3","4","5","6","7"]):
+            if customer_search_input == "1":
+                search_worksheet("customers",["customer_fname","customer_lname"])
+            elif customer_search_input == "2":
+                search_worksheet("customers",["customer_address"])
+            elif customer_search_input == "3":
+                search_worksheet("customers",["customer_postcode"])
+            elif customer_search_input == "4":
+                search_worksheet("customers",["customer_id"])
+            elif customer_search_input == "5":
+                search_worksheet("orders",["order_id"])
+            elif customer_search_input == "6":
+                search_worksheet("invoices",["invoice_id"])
+            elif customer_search_input == "7":
+                search_worksheet("items",["item_id"])
+            break
+            
 
 def main():
     """
