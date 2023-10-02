@@ -39,10 +39,10 @@ def main_menu_init():
         # print ("1. Create a new customer")
         # print ("2. Search for an existing customer")
         multiline_display_printer(["Please enter the number "
-                                "that corresponds to your request",
-                                "Would you like to :",
-                                "1. Create a new customer",
-                                "2. Search for an existing customer"])
+                                   "that corresponds to your request",
+                                   "Would you like to :",
+                                   "1. Create a new customer",
+                                   "2. Search for an existing customer"])
         main_menu_input = input("Choice : ")
         if validate_choice(main_menu_input, ["1", "2"]):
             if main_menu_input == "1":
@@ -54,11 +54,11 @@ def main_menu_init():
 
 def validate_choice(user_input, option_choices):
     """
-    - The validator takes the user input from where this function 
+    - The validator takes the user input from where this function
       is called.
-    - It will also take the choices available which are also 
+    - It will also take the choices available which are also
       sent from the area where this function is called (eg. 1,[5,6])
-    - If the user_input is found in the option choices, 
+    - If the user_input is found in the option choices,
       then return a True.
     - Otherwise, False is returned and an error displayed.
     - Also checks for a blank input
@@ -96,7 +96,7 @@ def validate_input_string(input_prompt):
             # if input sent is blank when whitespace removed
             if len(input_string.strip()) == 0:
                 raise ValueError("Input cannot be left blank.")
-        
+
         except ValueError as e:
             cprint((f"ERROR: {e} please try again. \n"), "red")
             continue
@@ -176,7 +176,7 @@ def search_customer():
     - 5. Order (by the order_id, eg.PT3-O1)
     - 6. Invoice (by the invoice_id, eg.PT3-I1)
     - 7. Item (by the item_id, eg.PT3-SN1)
-    - Then run the user choice through the validator based 
+    - Then run the user choice through the validator based
       on choices sent in the array (1-7)
     """
     while True:
@@ -194,8 +194,8 @@ def search_customer():
         print("6. Invoice Number (Starts. PT3-I*)")
         print("7. Item Number (Starts. PT3-SN*)")
         customer_search_input = input("Choice : ")
-        
-        if validate_choice(customer_search_input, 
+
+        if validate_choice(customer_search_input,
                            ["1", "2", "3", "4", "5", "6", "7"]):
             if customer_search_input == "1":
                 # search_worksheet("customers",["customer_fname","customer_lname"],customer_search_input)
@@ -236,15 +236,17 @@ def search_customer():
                 # search_worksheet("items",["item_id"],customer_search_input)
 
         if search_num:
-            search_data = search_worksheet(search_sheet, search_cols, search_num)
+            search_data = search_worksheet(search_sheet,
+                                           search_cols,
+                                           search_num)
 
         print(search_data)
 
 
 def main():
     """
-    - INITIATE THE PROGRAM. 
-    - Display the header. 
+    - INITIATE THE PROGRAM.
+    - Display the header.
     - Load the main menu, to provide the first options
     """
     f = Figlet(font='slant')
