@@ -75,8 +75,13 @@ def create_new_customer():
     - It has to be flexible as a "name" can be a company.
     - This makes validation harder due to numbers being possibly required.
     - However, validation can be based on total inputs or input length
+    - The new id is based on length, which includes headers. So using
+      the length of table provides the correct next number in sequence
     """
-
+    customers = SHEET.worksheet("customers").get_all_values()
+    customers_length = len(customers)
+    new_customer_id = "PT3-CN"+str(customers_length)
+    
 
 def search_customer():
     """
@@ -84,9 +89,10 @@ def search_customer():
     - 1. Name (search first and last)
     - 2. Address (whole string search)
     - 3. Postcode
-    - 4. Order (by the order_id, eg.PT3-O1)
-    - 5. Invoice (by the invoice_id, eg.PT3-I1)
-    - 6. Item (by the item_id, eg.PT3-SN1)
+    - 4. Customer No. (by the customer_id, eg.PT3-C1)
+    - 5. Order (by the order_id, eg.PT3-O1)
+    - 6. Invoice (by the invoice_id, eg.PT3-I1)
+    - 7. Item (by the item_id, eg.PT3-SN1)
     """
     print("Search a customer")
 
