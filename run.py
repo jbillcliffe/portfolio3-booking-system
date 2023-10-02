@@ -32,7 +32,7 @@ def main_menu_init():
         print ("1. Create a new customer")
         print ("2. Search for an existing customer")
         main_menu_input = input("Choice :\n")
-        if validate_choice(main_menu_input,[1,2]):
+        if validate_choice(main_menu_input,["1", "2"]):
             if main_menu_input == "1":
                 create_new_customer()
             else:
@@ -50,29 +50,27 @@ def validate_choice(user_input,option_choices):
     - Otherwise, False is returned and an error displayed.
     """
     try:
-        [int(user_input) for choice in option_choices]
-        if int(user_input) not in option_choices:
-            choices = option_choices.split(", ")
-            raise ValueError(f"Available choices are {choices}"
-                             f"You chose {user_input}. Please try again.")
+        if user_input not in option_choices:
+            raise ValueError(f"Available choices are : "
+                             f"{', '.join(option_choices)} "
+                             f"You chose {user_input}.")
     except ValueError as e:
-        print(f"Invalid data: {e}, please try again. \n")
+        cprint((f"ERROR: {e} Please try again. \n"),"red")
         return False
 
     return True
 
-def validate_string(user_input,breaker):
-
-    try:
-        string_length = len(user_input.strip())
-        if string_length == 0:
-            raise ValueError("Input cannot be left blank.")
-    except ValueError as e:
-        cprint((f"ERROR: {e} please try again. \n"),"red")
-        return False
-    else:
-        if breaker == True:
-            return True
+def validate_input_string(input_prompt):
+    while True:
+        try:
+            input_string = input(input_prompt)
+            if len(input_string.strip()) == 0:
+                raise ValueError("Input cannot be left blank.")
+        except ValueError as e:
+            cprint((f"ERROR: {e} please try again. \n"),"red")
+            continue
+        if len(input_string.strip()) > 0:
+            return input_string
 
 def update_selected_worksheet(data, worksheet):
     """
@@ -95,20 +93,18 @@ def create_new_customer():
       the length of table provides the correct next number in sequence
     """
     # Create an id
+    customer_data = []
     customers = SHEET.worksheet("customers").get_all_values()
     customers_length = len(customers)
     new_customer_id = "PT3-CN"+str(customers_length)
+    customer_data.append(new_customer_id)
     # Init user inputs
-    while True:
-        fname_input = input("Enter customer first name :\n")
-        validate_string(fname_input,False)
-        lname_input = input("Enter customer surname :\n")
-        validate_string(lname_input,False)
-        address_input = input("Enter customer address (excluding postcode) :\n")
-        validate_string(address_input,False)
-        postcode_input = input("Enter customer postcode :\n")
-        validate_string(postcode_input,True)
-       
+    fname_input = validate_input_string("Enter customer first name :\n")
+    lname_input = validate_input_string("Enter customer surname :\n")
+    address_input = validate_input_string("Enter customer address (excluding postcode) :\n")
+    postcode_input = validate_input_string("Enter customer postcode :\n")
+    print(fname_input,lname_input,address_input,postcode_input)
+
 def search_customer():
     """
     - Need to define how a search wants to be made.
