@@ -51,9 +51,12 @@ def validate_choice(user_input,option_choices):
     """
     try:
         if user_input not in option_choices:
+            choice_display = user_input
+            if len(user_input.strip()) == 0:
+                choice_display = "no entry"
             raise ValueError(f"Available choices are : "
                              f"{', '.join(option_choices)} "
-                             f"You chose {user_input}.")
+                             f"You chose {choice_display}.")
     except ValueError as e:
         cprint((f"ERROR: {e} Please try again. \n"),"red")
         return False
