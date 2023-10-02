@@ -5,6 +5,13 @@ from pyfiglet import Figlet
 from termcolor import colored, cprint
 import gspread
 from google.oauth2.service_account import Credentials
+# Your code goes here.
+# You can delete these comments, but do not change the name of this file
+# Write your code to expect a terminal of 80 characters wide and 24 rows high
+from pyfiglet import Figlet
+from termcolor import colored, cprint
+import gspread
+from google.oauth2.service_account import Credentials
 
 
 SCOPE = [
@@ -31,17 +38,21 @@ def main_menu_init():
         # print ("Would you like to :")
         # print ("1. Create a new customer")
         # print ("2. Search for an existing customer")
-        multiline_display_printer(["Please enter the number that corresponds to your request",
-        "Would you like to :","1. Create a new customer","2. Search for an existing customer"])
+        multiline_display_printer(["Please enter the number "
+                                "that corresponds to your request",
+                                "Would you like to :",
+                                "1. Create a new customer",
+                                "2. Search for an existing customer"])
         main_menu_input = input("Choice : ")
-        if validate_choice(main_menu_input,["1", "2"]):
+        if validate_choice(main_menu_input, ["1", "2"]):
             if main_menu_input == "1":
                 create_new_customer()
             else:
                 search_customer()
             break
 
-def validate_choice(user_input,option_choices):
+
+def validate_choice(user_input, option_choices):
     """
     - The validator takes the user input from where this function 
       is called.
@@ -65,10 +76,11 @@ def validate_choice(user_input,option_choices):
                              f"You chose {choice_display}.")
 
     except ValueError as e:
-        cprint((f"ERROR: {e} Please try again. \n"),"red")
+        cprint((f"ERROR: {e} Please try again. \n"), "red")
         return False
 
     return True
+
 
 def validate_input_string(input_prompt):
     """
@@ -86,13 +98,14 @@ def validate_input_string(input_prompt):
                 raise ValueError("Input cannot be left blank.")
         
         except ValueError as e:
-            cprint((f"ERROR: {e} please try again. \n"),"red")
+            cprint((f"ERROR: {e} please try again. \n"), "red")
             continue
 
         # if input when whitespace removed still has content,
         # return the input content
         if len(input_string.strip()) > 0:
             return input_string
+
 
 def multiline_display_printer(display_list):
     """
@@ -103,9 +116,19 @@ def multiline_display_printer(display_list):
     for x in display_list:
         print(x)
 
-def search_worksheet(search_this, search_terms):
-    print(search_this)
-    print(search_terms)
+
+def search_worksheet(search_this, search_columns, search_value):
+    search_results = []
+    print(f"Searching {search_this.capitalize()}.....")
+    search_worksheet = SHEET.worksheet(search_this)
+    for x in search_columns:
+        values = search_worksheet.findall(search_value, in_column=x)
+        search_results.append(values)
+    print("Search Complete")
+    print("----------------------------")
+    print("----------RESULTS-----------")
+    return search_results
+
 
 def update_selected_worksheet(data, worksheet):
     """
@@ -117,7 +140,6 @@ def update_selected_worksheet(data, worksheet):
     update_worksheet = SHEET.worksheet(worksheet)
     update_worksheet.append_row(data)
     print(f"{worksheet.capitalize()} update made successfully.\n")
-
 
 
 def create_new_customer():
@@ -138,9 +160,11 @@ def create_new_customer():
     # Init user inputs with built in validators
     fname_input = validate_input_string("Enter customer first name : ")
     lname_input = validate_input_string("Enter customer surname : ")
-    address_input = validate_input_string("Enter customer address (excluding postcode) : ")
+    address_input = validate_input_string("Enter customer address "
+                                          "(excluding postcode) : ")
     postcode_input = validate_input_string("Enter customer postcode : ")
-    print(fname_input,lname_input,address_input,postcode_input)
+    print(fname_input, lname_input, address_input, postcode_input)
+
 
 def search_customer():
     """
@@ -156,33 +180,66 @@ def search_customer():
       on choices sent in the array (1-7)
     """
     while True:
-        print ("\nPlease enter the number that corresponds to your request")
-        print ("Select your search criteria :")
-        print ("1. Customer Name (First and last included)")
-        print ("2. Address (Searches all but postcode)")
-        print ("3. Postcode")
-        print ("4. Customer Number (Starts. PT3-C*)")
-        print ("5. Order Number (Starts. PT3-O*)")
-        print ("6. Invoice Number (Starts. PT3-I*)")
-        print ("7. Item Number (Starts. PT3-SN*)")
+        search_data = []
+        search_num = ""
+        search_sheet = ""
+        search_cols = []
+        print("\nPlease enter the number that corresponds to your request")
+        print("Select your search criteria :")
+        print("1. Customer Name (First and last included)")
+        print("2. Address (Searches all but postcode)")
+        print("3. Postcode")
+        print("4. Customer Number (Starts. PT3-C*)")
+        print("5. Order Number (Starts. PT3-O*)")
+        print("6. Invoice Number (Starts. PT3-I*)")
+        print("7. Item Number (Starts. PT3-SN*)")
         customer_search_input = input("Choice : ")
-        if validate_choice(customer_search_input,["1","2","3","4","5","6","7"]):
+        
+        if validate_choice(customer_search_input, 
+                           ["1", "2", "3", "4", "5", "6", "7"]):
             if customer_search_input == "1":
-                search_worksheet("customers",["customer_fname","customer_lname"])
+                # search_worksheet("customers",["customer_fname","customer_lname"],customer_search_input)
+                search_sheet = "customers"
+                search_cols = [1, 2]
+                search_num = validate_input_string("Enter customer first "
+                                                   "name or surname : ")
             elif customer_search_input == "2":
-                search_worksheet("customers",["customer_address"])
+                search_sheet = "customers"
+                search_cols = [3]
+                search_num = validate_input_string("Enter customer address : ")
+                # search_worksheet("customers",["customer_address"],customer_search_input)
             elif customer_search_input == "3":
-                search_worksheet("customers",["customer_postcode"])
+                search_sheet = "customers"
+                search_cols = [4]
+                search_num = validate_input_string("Enter customer "
+                                                   "postcode : ")
+                # search_worksheet("customers",["customer_postcode"],customer_search_input)
             elif customer_search_input == "4":
-                search_worksheet("customers",["customer_id"])
+                search_sheet = "customers"
+                search_cols = [0]
+                search_num = validate_input_string("Enter customer number : ")
+                # search_worksheet("customers",["customer_id"],customer_search_input)
             elif customer_search_input == "5":
-                search_worksheet("orders",["order_id"])
+                search_sheet = "orders"
+                search_cols = [0]
+                search_num = validate_input_string("Enter order number : ")
+                # search_worksheet("orders",["order_id"],customer_search_input)
             elif customer_search_input == "6":
-                search_worksheet("invoices",["invoice_id"])
+                search_sheet = "invoices"
+                search_cols = [0]
+                search_num = validate_input_string("Enter invoice number : ")
+                # search_worksheet("invoices",["invoice_id"],customer_search_input)
             elif customer_search_input == "7":
-                search_worksheet("items",["item_id"])
-            break
-            
+                search_sheet = "items"
+                search_cols = [0]
+                search_num = validate_input_string("Enter item number : ")
+                # search_worksheet("items",["item_id"],customer_search_input)
+
+        if search_num:
+            search_data = search_worksheet(search_sheet, search_cols, search_num)
+
+        print(search_data)
+
 
 def main():
     """
@@ -194,8 +251,5 @@ def main():
     print(f.renderText("Welcome To Renterprise"))
     main_menu_init()
 
+
 main()
-
-
-
-
