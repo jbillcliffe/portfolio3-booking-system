@@ -5,14 +5,7 @@ from pyfiglet import Figlet
 from termcolor import colored, cprint
 import gspread
 from google.oauth2.service_account import Credentials
-# Your code goes here.
-# You can delete these comments, but do not change the name of this file
-# Write your code to expect a terminal of 80 characters wide and 24 rows high
-from pyfiglet import Figlet
-from termcolor import colored, cprint
-import gspread
-from google.oauth2.service_account import Credentials
-
+from customers import Customer
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -121,12 +114,42 @@ def search_worksheet(search_this, search_columns, search_value):
     search_results = []
     print(f"Searching {search_this.capitalize()}.....")
     search_worksheet = SHEET.worksheet(search_this)
+
     for x in search_columns:
         values = search_worksheet.findall(search_value, in_column=x)
-        search_results.append(values)
+
+        if search_this == "customers":
+            for y in values:
+                row = search_worksheet.row_values(y.row)
+                search_results.append(row)
+        elif search_this == "orders" or search_this == "invoices":
+            # Get customer number from orders table, to search customers
+            customer_id_list = []
+            if search_this == "orders":
+                for y in values:
+                    row = search_worksheet.row_values(y.row)
+                    customer_id = row[1]
+                    customer_id_list.append(customer_id)
+            if search_this == "invoices":
+                for y in values:
+                    order_sheet = SHEET.worksheet("orders")
+                    row = search_worksheet.row_values(y.row)
+                    order_id = row[1]
+                    order_row = order_sheet.find(order_id, in_column=0)
+                    order_values = order_sheet.row_values(order_row.row)
+                    customer_id = order_values[1]
+                    customer_id_list.append(customer_id)
+
+            for z in customer_id_list:
+                customer_values = SHEET.worksheet(
+                                                "customers").find(
+                                                z, in_column=1)
+                customer_row = SHEET.worksheet(
+                                            "customers").row_values(
+                                            customer_values.row)
+                search_results.append(customer_row)
     print("Search Complete")
     print("----------------------------")
-    print("----------RESULTS-----------")
     return search_results
 
 
@@ -198,49 +221,72 @@ def search_customer():
         if validate_choice(customer_search_input,
                            ["1", "2", "3", "4", "5", "6", "7"]):
             if customer_search_input == "1":
-                # search_worksheet("customers",["customer_fname","customer_lname"],customer_search_input)
                 search_sheet = "customers"
-                search_cols = [1, 2]
+                search_cols = [2, 3]
                 search_num = validate_input_string("Enter customer first "
                                                    "name or surname : ")
             elif customer_search_input == "2":
                 search_sheet = "customers"
-                search_cols = [3]
+                search_cols = [4]
                 search_num = validate_input_string("Enter customer address : ")
-                # search_worksheet("customers",["customer_address"],customer_search_input)
             elif customer_search_input == "3":
                 search_sheet = "customers"
-                search_cols = [4]
+                search_cols = [5]
                 search_num = validate_input_string("Enter customer "
                                                    "postcode : ")
-                # search_worksheet("customers",["customer_postcode"],customer_search_input)
             elif customer_search_input == "4":
                 search_sheet = "customers"
-                search_cols = [0]
+                search_cols = [1]
                 search_num = validate_input_string("Enter customer number : ")
-                # search_worksheet("customers",["customer_id"],customer_search_input)
             elif customer_search_input == "5":
                 search_sheet = "orders"
-                search_cols = [0]
+                search_cols = [1]
                 search_num = validate_input_string("Enter order number : ")
-                # search_worksheet("orders",["order_id"],customer_search_input)
             elif customer_search_input == "6":
                 search_sheet = "invoices"
-                search_cols = [0]
+                search_cols = [1]
                 search_num = validate_input_string("Enter invoice number : ")
-                # search_worksheet("invoices",["invoice_id"],customer_search_input)
             elif customer_search_input == "7":
-                search_sheet = "items"
-                search_cols = [0]
+                search_sheet = "orders"
+                search_cols = [2]
                 search_num = validate_input_string("Enter item number : ")
-                # search_worksheet("items",["item_id"],customer_search_input)
 
         if search_num:
+            found_customers = []
             search_data = search_worksheet(search_sheet,
                                            search_cols,
                                            search_num)
+            if search_data:
+                if len(search_data) == 1:
+                    print("Only one")
+                else:
+                    customer_select_number = 1
+                    customer_select_options = []
+                    for customer in search_data:
+                        found_customers.append(Customer(customer[0], 
+                                                        customer[1],
+                                                        customer[2], 
+                                                        customer[3],
+                                                        customer[4]))
+                        print(f"Option {customer_select_number}. \n"
+                            f"Customer ID : {customer[0]}. \n"
+                            f"Name : {customer[1]} {customer[2]}.\n"
+                            f"Address : {customer[3]} {customer[4]}")
+                        print("----------------------------")
+                        customer_select_options.append(str(
+                                                customer_select_number))
+                        customer_select_number += 1
+                        
+                    customer_select_input = input(
+                                    f"Choose an option from 1 "
+                                    f"to {len(customer_select_options)} : ")
 
-        print(search_data)
+                    print(customer_select_options)
+
+                    if validate_choice(customer_select_input,
+                                       customer_select_options):
+                        print("Good Choice")
+                        break
 
 
 def main():
