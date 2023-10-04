@@ -36,7 +36,7 @@ def terminal_clear():
 
 
 def create_header_title(header_text, header_theme=None,
-                        header_align="left", font="chrome", 
+                        header_align="left", font="chrome",
                         background="transparent"):
     """
     - A quick function that will take a provided
@@ -50,6 +50,10 @@ def create_header_title(header_text, header_theme=None,
         header_colours = ['white']
         header_align = "center"
         background = "#2D8A60"
+    elif header_theme == "blanking_cell":
+        header_colours = ['white']
+        header_align = "center"
+        background = "transparent"
     else:
         header_colours = ['#2D8A60', '#6BCFA2', 'white']
 
@@ -57,6 +61,7 @@ def create_header_title(header_text, header_theme=None,
                     font=font,
                     colors=header_colours,
                     align=header_align,
+                    max_length=0,
                     background=background)
     print(output)
 
@@ -79,16 +84,16 @@ def main_menu_init():
         if validate_choice(main_menu_input, ["1", "2"], "Renterprise"):
             terminal_clear()
             if main_menu_input == "1":
-                create_header_title("Create New Customer")
+                create_header_title("Create Customer")
                 create_new_customer()
             else:
-                create_header_title("Search For Customer")
+                create_header_title("Search Customer")
                 search_customer()
             break
 
 
 def validate_choice(user_input, option_choices,
-                    current_header=None):
+                    current_header=None, current_header_theme=None):
     """
     - The validator takes the user input from where this function
       is called.
@@ -117,7 +122,7 @@ def validate_choice(user_input, option_choices,
     except ValueError as e:
         if current_header:
             terminal_clear()
-            create_header_title(current_header)
+            create_header_title(current_header, current_header_theme)
             cprint("----------------------------", "red")
             cprint((f"ERROR: {e}"), "red")
             cprint("----------------------------\n", "red")
@@ -153,7 +158,7 @@ def validate_input_string(input_prompt, input_from=None):
             if (input_from == "search_customer" and
                     (input_string == "B" or input_string == "b")):
                 terminal_clear()
-                create_header_title("Search For Customer")
+                create_header_title("Search Customer")
                 return search_customer()
             else:
                 return input_string
@@ -167,7 +172,7 @@ def multiline_display_printer(display_list, menu_return=False):
     """
     for x in display_list:
         print(x)
-    
+
     if menu_return is True:
         cprint("----------------------------", "green")
         cprint(f"ENTER 'M' TO RETURN TO MAIN MENU", "green")
@@ -240,7 +245,7 @@ def search_worksheet(search_this, search_columns, search_value):
 
     if len(search_results) == 0:
         terminal_clear()
-        create_header_title("Search For Customer")
+        create_header_title("Search Customer")
         cprint("----------------------------", "red")
         cprint("ERROR: No Customer Found.", "red")
         cprint("----------------------------\n", "red")
@@ -278,8 +283,7 @@ def create_new_customer():
     # Initialise user inputs with built in validators
     fname_input = validate_input_string("Enter customer first name : ")
     lname_input = validate_input_string("Enter customer surname : ")
-    address_input = validate_input_string("Enter customer address "
-                                          "(excluding postcode) : ")
+    address_input = validate_input_string("Enter first line of address : ")
     postcode_input = validate_input_string("Enter customer postcode : ")
 
     customers_length = SHEET.worksheet("customers").row_count
@@ -438,29 +442,47 @@ def customer_display():
     table_data = [
         [
             ("Customer ID").center(15),
-            (colored(selected_customer.customer_id, "cyan")).center(25),
-            ("").center(10),
-            (colored("1. Add New Order", "yellow")).center(20)],
+            (colored(selected_customer.customer_id, "cyan")),
+            (" ").center(5),
+            (colored("1. Add New Order", "yellow")).center(30)],
         [
             ("Address").center(15),
-            (colored(selected_customer.address, "cyan")).center(25),
-            ("").center(10),
-            (colored("2. View Orders", "yellow")).center(20)],
+            (colored(selected_customer.address, "cyan")),
+            (" ").center(5),
+            (colored("2. View Orders", "yellow")).center(30)],
         [
             ("Postcode").center(15),
-            (colored(selected_customer.postcode, "cyan")).center(25),
-            ("").center(10),
-            (colored("3. Change Name", "yellow")).center(20)],
+            (colored(selected_customer.postcode, "cyan")),
+            (" ").center(5),
+            (colored("3. Change Name", "yellow")).center(30)],
         [
-            ("").center(15),
-            ("").center(25),
-            ("").center(10),
-            (colored("4. Change Address", "yellow")).center(20)]]
+            (" ").center(15),
+            (" ").center(25),
+            (" ").center(5),
+            (colored("4. Change Address", "yellow")).center(30)],
+        [
+            (" ").center(15),
+            (" ").center(25),
+            (" ").center(5),
+            (colored("5. Main Menu", "yellow")).center(30)]]
+
     table = SingleTable(table_data)
     table.inner_heading_row_border = False
-    table.inner_row_border = True
+    table.inner_row_border = False
+    table.justify_columns[1] = 'right'
+    table.padding_left = 0
+    table.padding_right = 1
 
-    print(table.table)
+    table_string = (table.table).center(80)
+    print(table_string)
+
+    customer_option_input = input("Choose Option : ")
+
+    if validate_choice(customer_option_input,
+                       ["1", "2", "3", "4", "5"],
+                       f"{selected_customer.fname} {selected_customer.lname}",
+                       "customer"):
+        print("Choice is valid.")
 
 
 def main():
