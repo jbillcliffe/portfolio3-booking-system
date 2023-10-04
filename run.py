@@ -95,14 +95,17 @@ def validate_choice(user_input, option_choices,
     try:
         # if input sent, not in list sent
         if user_input not in option_choices:
-            choice_display = user_input
-            # if input sent is blank when whitespace removed
-            if len(user_input.strip()) == 0:
-                choice_display = "no entry"
+            if (user_input == "M" or user_input == "m"):
+                main()
+            else:
+                choice_display = user_input
+                # if input sent is blank when whitespace removed
+                if len(user_input.strip()) == 0:
+                    choice_display = "no entry"
 
-            raise ValueError(f"Available choices are : "
-                             f"{', '.join(option_choices)}. "
-                             f"You chose {choice_display}.")
+                raise ValueError(f"Available choices are : "
+                                 f"{', '.join(option_choices)}. "
+                                 f"You chose {choice_display}.")
 
     except ValueError as e:
         if current_header:
@@ -113,7 +116,6 @@ def validate_choice(user_input, option_choices,
             cprint("----------------------------\n", "red")
 
         return False
-
     return True
 
 
@@ -134,7 +136,7 @@ def validate_input_string(input_prompt, input_from=None):
 
         except ValueError as e:
             cprint("----------------------------", "red")
-            cprint((f"ERROR: {e}\n"), "red")
+            cprint((f"ERROR: {e}"), "red")
             cprint("----------------------------", "red")
             continue
 
@@ -150,7 +152,7 @@ def validate_input_string(input_prompt, input_from=None):
                 return input_string
 
 
-def multiline_display_printer(display_list):
+def multiline_display_printer(display_list, menu_return=False):
     """
     - This is to shorten the code where there are multiple print
       statements in succssion.
@@ -158,6 +160,11 @@ def multiline_display_printer(display_list):
     """
     for x in display_list:
         print(x)
+    
+    if menu_return is True:
+        cprint("----------------------------", "green")
+        cprint(f"ENTER 'M' TO RETURN TO MAIN MENU", "green")
+        cprint("----------------------------", "green")
 
 
 def search_worksheet(search_this, search_columns, search_value):
@@ -259,12 +266,6 @@ def create_new_customer():
     - The new id is based on length, which includes headers. So using
       the length of table provides the correct next number in sequence
     """
-    # Create an id based on a custom identifier prefix
-    customer_data = []
-    customers = SHEET.worksheet("customers").get_all_values()
-    customers_length = len(customers)
-    new_customer_id = "PT3-CN"+str(customers_length)
-    customer_data.append(new_customer_id)
     # Initialise user inputs with built in validators
     fname_input = validate_input_string("Enter customer first name : ")
     lname_input = validate_input_string("Enter customer surname : ")
@@ -273,6 +274,16 @@ def create_new_customer():
     postcode_input = validate_input_string("Enter customer postcode : ")
     print(fname_input, lname_input, address_input, postcode_input)
 
+    # Create an id based on a custom identifier prefix
+    """
+    Needs to go into a save customer function
+    
+    customer_data = []
+    customers = SHEET.worksheet("customers").get_all_values()
+    customers_length = len(customers)
+    new_customer_id = "PT3-CN"+str(customers_length)
+    customer_data.append(new_customer_id)
+    """
 
 def search_customer():
     """
@@ -302,14 +313,13 @@ def search_customer():
             "4. Customer Number (Starts. PT3-C*)",
             "5. Order Number (Starts. PT3-O*)",
             "6. Invoice Number (Starts. PT3-I*)",
-            "7. Item Number (Starts. PT3-SN*)"])
+            "7. Item Number (Starts. PT3-SN*)"], True)
 
         customer_search_input = input("Choice : ")
 
         if validate_choice(customer_search_input,
                            ["1", "2", "3", "4", "5", "6", "7"],
-                           "Search For Customer",
-                           ):
+                           "Search For Customer"):
             print("Enter 'B' to return to search criteria")
             if customer_search_input == "1":
                 search_sheet = "customers"
@@ -371,19 +381,13 @@ def search_customer():
                 else:
                     customer_select_number = 1
                     customer_select_options = []
-                    """
-                        multiline_display_printer([
-                            f"Option {customer_select_number}.",
-                            f"Customer ID : {customer[0]}.",
-                            f"Name : {customer[1]} {customer[2]}",
-                            f"Address : {customer[3]} {customer[4]}",
-                            "----------------------------"])
-                        """
+                    # "terminaltable" header row
                     table_data = [['', 'Customer ID', 'First Name',
                                    'Last Name', 'Address', 'Postcode']]
                     create_header_title("Found Customers")
                     for customer in search_data:
-                        table_data.append([customer_select_number, 
+
+                        table_data.append([customer_select_number,
                                            customer[0], customer[1],
                                            customer[2], customer[3],
                                            customer[4]])
