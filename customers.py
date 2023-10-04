@@ -16,3 +16,4 @@ class Customer:
         print(f"Name : {self.fname} {self.lname}")
         print(f"Address : {self.address}")
         print(f"Postcode : {self.postcode}")
+        print("----------------------------")
