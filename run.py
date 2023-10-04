@@ -57,8 +57,7 @@ def create_header_title(header_text, header_theme=None,
                     font=font,
                     colors=header_colours,
                     align=header_align,
-                    background=background
-                    )
+                    background=background)
     print(output)
 
 
@@ -434,7 +433,34 @@ def customer_display():
     """
     terminal_clear()
     create_header_title(f"{selected_customer.fname} "
-                        f"{selected_customer.lname}","customer")
+                        f"{selected_customer.lname}", "customer")
+
+    table_data = [
+        [
+            ("Customer ID").center(15),
+            (colored(selected_customer.customer_id, "cyan")).center(25),
+            ("").center(10),
+            (colored("1. Add New Order", "yellow")).center(20)],
+        [
+            ("Address").center(15),
+            (colored(selected_customer.address, "cyan")).center(25),
+            ("").center(10),
+            (colored("2. View Orders", "yellow")).center(20)],
+        [
+            ("Postcode").center(15),
+            (colored(selected_customer.postcode, "cyan")).center(25),
+            ("").center(10),
+            (colored("3. Change Name", "yellow")).center(20)],
+        [
+            ("").center(15),
+            ("").center(25),
+            ("").center(10),
+            (colored("4. Change Address", "yellow")).center(20)]]
+    table = SingleTable(table_data)
+    table.inner_heading_row_border = False
+    table.inner_row_border = True
+
+    print(table.table)
 
 
 def main():
