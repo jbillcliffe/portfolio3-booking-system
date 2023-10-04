@@ -35,7 +35,9 @@ def terminal_clear():
         os.system('cls')
 
 
-def create_header_title(header_text, header_theme=None):
+def create_header_title(header_text, header_theme=None,
+                        header_align="left", font="chrome", 
+                        background="transparent"):
     """
     - A quick function that will take a provided
     font and text and insert it into the console.
@@ -44,12 +46,18 @@ def create_header_title(header_text, header_theme=None):
     """
     if header_theme == "red":
         header_colours = ['#B70600', '#FF6C66', 'white']
+    elif header_theme == "customer":
+        header_colours = ['white']
+        header_align = "center"
+        background = "#2D8A60"
     else:
         header_colours = ['#2D8A60', '#6BCFA2', 'white']
 
     output = render(text=header_text,
-                    font="chrome",
-                    colors=header_colours
+                    font=font,
+                    colors=header_colours,
+                    align=header_align,
+                    background=background
                     )
     print(output)
 
@@ -267,6 +275,7 @@ def create_new_customer():
     - The new id is based on length, which includes headers. So using
       the length of table provides the correct next number in sequence
     """
+    global selected_customer
     # Initialise user inputs with built in validators
     fname_input = validate_input_string("Enter customer first name : ")
     lname_input = validate_input_string("Enter customer surname : ")
@@ -278,19 +287,12 @@ def create_new_customer():
     customer_id = "PT3-C"+str(customers_length)
     customer_data = [customer_id, fname_input, lname_input,
                      address_input, postcode_input]
-
+    selected_customer = Customer(customer_id, fname_input, lname_input,
+                                 address_input, postcode_input)
     if addin_selected_worksheet(customer_data, "customers"):
-        print("Load to the created customer")
-    # Create an id based on a custom identifier prefix
-    """
-    Needs to go into a save customer function
+        # Here need to move to customer display
+        customer_display()
 
-    customer_data = []
-    customers = SHEET.worksheet("customers").get_all_values()
-    customers_length = len(customers)
-    new_customer_id = "PT3-CN"+str(customers_length)
-    customer_data.append(new_customer_id)
-    """
 
 def search_customer():
     """
@@ -382,8 +384,8 @@ def search_customer():
                                                  search_data[0][2],
                                                  search_data[0][3],
                                                  search_data[0][4])
-                    selected_customer.show_customer()
                     # Here need to move to customer display
+                    customer_display()
                     break
                 else:
                     customer_select_number = 1
@@ -420,9 +422,19 @@ def search_customer():
                         customer_choice_index = int(customer_select_input) - 1
                         selected_customer = found_customers[
                                 customer_choice_index]
-                        # Here need to move to customer
-                        selected_customer.show_customer()
+                        # Here need to move to customer display
+                        customer_display()
                         break
+
+
+def customer_display():
+    """
+    Use the selected_customer to load the customer data into a formatted
+    terminal window
+    """
+    terminal_clear()
+    create_header_title(f"{selected_customer.fname} "
+                        f"{selected_customer.lname}","customer")
 
 
 def main():

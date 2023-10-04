@@ -3,7 +3,8 @@
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 
 class Customer:
-    """Creates an instance of Customer """
+
+    # Creates an instance of Customer
     def __init__(self, customer_id, fname, lname, address, postcode):
         self.customer_id = customer_id
         self.fname = fname
@@ -11,9 +12,5 @@ class Customer:
         self.address = address
         self.postcode = postcode
 
-    def show_customer(self):
-        print(f"ID : {self.customer_id}")
-        print(f"Name : {self.fname} {self.lname}")
-        print(f"Address : {self.address}")
-        print(f"Postcode : {self.postcode}")
-        print("----------------------------")
+    def load_selected_customer(self):
+        return self.__dict__
