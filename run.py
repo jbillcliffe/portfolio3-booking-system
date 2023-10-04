@@ -245,16 +245,17 @@ def search_worksheet(search_this, search_columns, search_value):
         return search_results
 
 
-def update_selected_worksheet(data, worksheet):
+def addin_selected_worksheet(data, worksheet):
     """
-    - Update the worksheet sent to the function.
+    Add data to the worksheet sent to the function.
     - After creating a new row to be added. This function will append
-      the newly created row to the defined worksheet.
+    the newly created row to the defined worksheet.
     """
-    print(f"Updating {worksheet.capitalize()}..... \n")
+    print(f"Adding to {worksheet.capitalize()}..... \n")
     update_worksheet = SHEET.worksheet(worksheet)
     update_worksheet.append_row(data)
     print(f"{worksheet.capitalize()} update made successfully.\n")
+    return True
 
 
 def create_new_customer():
@@ -272,12 +273,18 @@ def create_new_customer():
     address_input = validate_input_string("Enter customer address "
                                           "(excluding postcode) : ")
     postcode_input = validate_input_string("Enter customer postcode : ")
-    print(fname_input, lname_input, address_input, postcode_input)
 
+    customers_length = SHEET.worksheet("customers").row_count
+    customer_id = "PT3-C"+str(customers_length)
+    customer_data = [customer_id, fname_input, lname_input,
+                     address_input, postcode_input]
+
+    if addin_selected_worksheet(customer_data, "customers"):
+        print("Load to the created customer")
     # Create an id based on a custom identifier prefix
     """
     Needs to go into a save customer function
-    
+
     customer_data = []
     customers = SHEET.worksheet("customers").get_all_values()
     customers_length = len(customers)
