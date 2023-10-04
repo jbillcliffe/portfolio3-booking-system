@@ -3,6 +3,7 @@
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 from cfonts import render, say
 from termcolor import colored, cprint
+from terminaltables import SingleTable
 import os
 import gspread
 from google.oauth2.service_account import Credentials
@@ -370,25 +371,35 @@ def search_customer():
                 else:
                     customer_select_number = 1
                     customer_select_options = []
-
-                    create_header_title("Found Customers")
-                    for customer in search_data:
-                        found_customers.append(Customer(customer[0],
-                                                        customer[1],
-                                                        customer[2],
-                                                        customer[3],
-                                                        customer[4]))
+                    """
                         multiline_display_printer([
                             f"Option {customer_select_number}.",
                             f"Customer ID : {customer[0]}.",
                             f"Name : {customer[1]} {customer[2]}",
                             f"Address : {customer[3]} {customer[4]}",
                             "----------------------------"])
+                        """
+                    table_data = [['', 'Customer ID', 'First Name',
+                                   'Last Name', 'Address', 'Postcode']]
+                    create_header_title("Found Customers")
+                    for customer in search_data:
+                        table_data.append([customer_select_number, 
+                                           customer[0], customer[1],
+                                           customer[2], customer[3],
+                                           customer[4]])
+
+                        found_customers.append(Customer(customer[0],
+                                                        customer[1],
+                                                        customer[2],
+                                                        customer[3],
+                                                        customer[4]))
 
                         customer_select_options.append(str(
                                                 customer_select_number))
                         customer_select_number += 1
 
+                    table = SingleTable(table_data, "Customers")
+                    print(table.table)
                     customer_select_input = input(
                                     f"Choose an option from 1 "
                                     f"to {len(customer_select_options)} : ")
