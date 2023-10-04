@@ -6,6 +6,7 @@ from termcolor import colored, cprint
 import gspread
 from google.oauth2.service_account import Credentials
 from customers import Customer
+from items import Item
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -75,7 +76,7 @@ def validate_choice(user_input, option_choices):
     return True
 
 
-def validate_input_string(input_prompt):
+def validate_input_string(input_prompt, input_from=None):
     """
     - The validator creates a user input within it.
     - This means the function keeps running until the input is successful
@@ -97,7 +98,13 @@ def validate_input_string(input_prompt):
         # if input when whitespace removed still has content,
         # return the input content
         if len(input_string.strip()) > 0:
-            return input_string
+            print(input_from)
+            print(input_string)
+            if (input_from == "search_customer" and
+                    (input_string == "B" or input_string == "b")):
+                return search_customer()
+            else:
+                return input_string
 
 
 def multiline_display_printer(display_list):
@@ -220,72 +227,92 @@ def search_customer():
 
         if validate_choice(customer_search_input,
                            ["1", "2", "3", "4", "5", "6", "7"]):
+            print("Enter 'B' to return to search criteria")
             if customer_search_input == "1":
                 search_sheet = "customers"
                 search_cols = [2, 3]
                 search_num = validate_input_string("Enter customer first "
-                                                   "name or surname : ")
+                                                   "name or surname : ",
+                                                   "search_customer")
             elif customer_search_input == "2":
                 search_sheet = "customers"
                 search_cols = [4]
-                search_num = validate_input_string("Enter customer address : ")
+                search_num = validate_input_string("Enter customer address : ",
+                                                   "search_customer")
             elif customer_search_input == "3":
                 search_sheet = "customers"
                 search_cols = [5]
                 search_num = validate_input_string("Enter customer "
-                                                   "postcode : ")
+                                                   "postcode : ",
+                                                   "search_customer")
             elif customer_search_input == "4":
                 search_sheet = "customers"
                 search_cols = [1]
-                search_num = validate_input_string("Enter customer number : ")
+                search_num = validate_input_string("Enter customer number : ",
+                                                   "search_customer")
             elif customer_search_input == "5":
                 search_sheet = "orders"
                 search_cols = [1]
-                search_num = validate_input_string("Enter order number : ")
+                search_num = validate_input_string("Enter order number : ",
+                                                   "search_customer")
             elif customer_search_input == "6":
                 search_sheet = "invoices"
                 search_cols = [1]
-                search_num = validate_input_string("Enter invoice number : ")
+                search_num = validate_input_string("Enter invoice number : ",
+                                                   "search_customer")
             elif customer_search_input == "7":
                 search_sheet = "orders"
                 search_cols = [2]
-                search_num = validate_input_string("Enter item number : ")
+                search_num = validate_input_string("Enter item number : ",
+                                                   "search_customer")
 
         if search_num:
             found_customers = []
             search_data = search_worksheet(search_sheet,
                                            search_cols,
                                            search_num)
+
+            global selected_customer
             if search_data:
                 if len(search_data) == 1:
                     print("Only one")
+                    print(search_data)
+                    selected_customer = Customer(search_data[0][0],
+                                                 search_data[0][1],
+                                                 search_data[0][2],
+                                                 search_data[0][3],
+                                                 search_data[0][4])
+                    selected_customer.show_customer()
+                    break
+
                 else:
                     customer_select_number = 1
                     customer_select_options = []
                     for customer in search_data:
-                        found_customers.append(Customer(customer[0], 
+                        found_customers.append(Customer(customer[0],
                                                         customer[1],
-                                                        customer[2], 
+                                                        customer[2],
                                                         customer[3],
                                                         customer[4]))
                         print(f"Option {customer_select_number}. \n"
-                            f"Customer ID : {customer[0]}. \n"
-                            f"Name : {customer[1]} {customer[2]}.\n"
-                            f"Address : {customer[3]} {customer[4]}")
+                              f"Customer ID : {customer[0]}. \n"
+                              f"Name : {customer[1]} {customer[2]}.\n"
+                              f"Address : {customer[3]} {customer[4]}")
                         print("----------------------------")
                         customer_select_options.append(str(
                                                 customer_select_number))
                         customer_select_number += 1
-                        
+
                     customer_select_input = input(
                                     f"Choose an option from 1 "
                                     f"to {len(customer_select_options)} : ")
 
-                    print(customer_select_options)
-
                     if validate_choice(customer_select_input,
                                        customer_select_options):
-                        print("Good Choice")
+                        customer_choice_index = int(customer_select_input) - 1
+                        selected_customer = found_customers[
+                                customer_choice_index]
+                        selected_customer.show_customer()
                         break
 
 

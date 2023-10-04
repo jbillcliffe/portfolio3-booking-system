@@ -4,9 +4,15 @@
 
 class Customer:
     """Creates an instance of Customer """
-    def __init__(self, customerid, fname, lname, address, postcode):
-        self.customerid = customerid
+    def __init__(self, customer_id, fname, lname, address, postcode):
+        self.customer_id = customer_id
         self.fname = fname
         self.lname = lname
         self.address = address
         self.postcode = postcode
+
+    def show_customer(self):
+        print(f"ID : {self.customer_id}")
+        print(f"Name : {self.fname} {self.lname}")
+        print(f"Address : {self.address}")
+        print(f"Postcode : {self.postcode}")
