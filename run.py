@@ -20,6 +20,7 @@ CREDS = Credentials.from_service_account_file('creds.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('portfolio3-booking-system')
+APPROVED_BLANKS = ["fname", "lname", "address", "postcode"]
 
 
 def terminal_clear():
@@ -143,8 +144,15 @@ def validate_input_string(input_prompt, input_from=None):
         try:
             input_string = input(input_prompt)
             # if input sent is blank when whitespace removed
-            if len(input_string.strip()) == 0:
+            if (len(input_string.strip()) == 0 and
+                    input_from not in APPROVED_BLANKS):
+
                 raise ValueError("Input cannot be left blank.")
+
+            elif (len(input_string.strip()) == 0 and
+                    input_from in APPROVED_BLANKS):
+                print("Empty Here")
+                return "EmptyOK"
 
         except ValueError as e:
             cprint("----------------------------", "red")
@@ -263,10 +271,29 @@ def addin_selected_worksheet(data, worksheet):
     - After creating a new row to be added. This function will append
     the newly created row to the defined worksheet.
     """
-    print(f"Adding to {worksheet.capitalize()}..... \n")
+    print(f"Adding to {worksheet.capitalize()}..... ")
+    add_worksheet = SHEET.worksheet(worksheet)
+    add_worksheet.append_row(data)
+    print(f"Addition to {worksheet.capitalize()} made successfully.\n")
+    return True
+
+
+def update_selected_worksheet(identifier, data, columns, worksheet):
+    """
+    Use data sent to function, a list, and update the cells also defined
+    by a list, to change data on a row already created
+    """
+    print(f"Updating {worksheet.capitalize()}..... ")
     update_worksheet = SHEET.worksheet(worksheet)
-    update_worksheet.append_row(data)
-    print(f"{worksheet.capitalize()} update made successfully.\n")
+    get_worksheet_cell = update_worksheet.find(identifier, in_column=1)
+    get_worksheet_row = get_worksheet_cell.row
+
+    data_length = len(data)
+
+    for x in range(data_length):
+        update_worksheet.update_cell(get_worksheet_row, columns[x], data[x])
+
+    print(f"Update to {identifier} in {worksheet.capitalize()} complete.")
     return True
 
 
@@ -430,7 +457,7 @@ def search_customer():
                         break
 
 
-def customer_display():
+def customer_display(where_from=None):
     """
     Use the selected_customer to load the customer data into a formatted
     terminal window
@@ -476,18 +503,112 @@ def customer_display():
     table_string = (table.table).center(80)
     print(table_string)
 
+    if where_from == "from_update":
+        cprint("----------------------------", "green")
+        cprint(f"{selected_customer.customer_id} Updated.", "green")
+        cprint("----------------------------\n", "green")
+    elif where_from == "no_update_made":
+        cprint("----------------------------", "yellow")
+        cprint("No Update Required.", "yellow")
+        cprint("----------------------------\n", "yellow")
+    customer_options_menu()
+
+
+def customer_options_menu():
+    """
+    Customer Options
+    - Here the user can select from options 1-5 and based on their feedback
+    will perform the selected option.
+    1 = New Order
+    2 = View Orders
+    3 = Change Name
+    4 = Change Address
+    5 = Return To Menu
+    """
     customer_option_input = input("Choose Option : ")
 
     if validate_choice(customer_option_input,
                        ["1", "2", "3", "4", "5"],
                        f"{selected_customer.fname} {selected_customer.lname}",
                        "customer"):
-        print("Choice is valid.")
+        print("Where multiple fields are present, "
+              "leave blank to exclude from update")
+
+        update_data = []
+        cells_to_update = []
+
+        # Change Name
+        if customer_option_input == "3":
+
+            fname_input = (
+                validate_input_string("Enter customer first name : ", "fname"))
+            lname_input = (
+                validate_input_string("Enter customer surname : ", "lname"))
+
+            if fname_input == "EmptyOK" and lname_input == "EmptyOK":
+                customer_display("no_update_made")
+
+            elif fname_input == "EmptyOK" and lname_input != "EmptyOK":
+                update_data = [lname_input]
+                cells_to_update = [3]
+                selected_customer.lname = lname_input
+
+            elif fname_input != "EmptyOK" and lname_input == "EmptyOK":
+                update_data = [fname_input]
+                selected_customer.fname = fname_input
+                cells_to_update = [2]
+
+            else:
+                update_data = [fname_input, lname_input]
+                cells_to_update = [2, 3]
+                selected_customer.fname = fname_input
+                selected_customer.lname = lname_input
+
+        # Change Address
+        elif customer_option_input == "4":
+
+            address_input = (
+                validate_input_string("Enter first line of address : ",
+                                      "address"))
+            postcode_input = (
+                validate_input_string("Enter customer postcode : ",
+                                      "postcode"))
+
+            if address_input == "EmptyOK" and postcode_input == "EmptyOK":
+                customer_display("no_update_made")
+
+            elif address_input == "EmptyOK" and postcode_input != "EmptyOK":
+                update_data = [postcode_input]
+                cells_to_update = [5]
+                selected_customer.postcode = postcode_input
+
+            elif address_input != "EmptyOK" and postcode_input == "EmptyOK":
+                update_data = [address_input]
+                cells_to_update = [4]
+                selected_customer.address = address_input
+
+            else:
+                update_data = [address_input, postcode_input]
+                cells_to_update = [4, 5]
+                selected_customer.address = address_input
+                selected_customer.postcode = postcode_input
+
+        # Return to menu
+        elif customer_option_input == "5":
+            main()
+
+        # Send data to be updated
+        if len(update_data) > 0:
+            update_selected_worksheet(selected_customer.customer_id,
+                                      update_data,
+                                      cells_to_update,
+                                      "customers")
+            customer_display("from_update")
 
 
 def main():
     """
-    - INITIATE THE PROGRAM.
+    INITIATE THE PROGRAM.
     - Display the header.
     - Load the main menu, to provide the first options
     """
