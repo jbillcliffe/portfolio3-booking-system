@@ -539,10 +539,16 @@ def customer_display(where_from=None):
         cprint("No Update Required.", "yellow")
         cprint("----------------------------\n", "yellow")
     elif where_from == "no_orders_found":
+        cprint("----------------------------", "red")
+        cprint("No Orders Found.", "red")
+        cprint("----------------------------\n", "red")
+    elif where_from == "view_orders":
         cprint("----------------------------", "yellow")
-        cprint("No Orders Found.", "yellow")
+        cprint("Orders.", "yellow")
         cprint("----------------------------\n", "yellow")
-    customer_options_menu()
+    
+    if where_from != "view_orders":
+        customer_options_menu()
 
 
 def customer_options_menu():
@@ -668,8 +674,8 @@ def view_customer_orders(order_data):
         if len(order_data) == 1:
             selected_order = order_data[0][0]
             selected_item = order_data[0][1]
-            print(f"you chose {selected_order.order_id} : "
-                  f"{selected_item.item_id}")
+            customer_display("view_orders")
+            order_display()
         else:
             order_select_number = 1
             order_select_options = []
@@ -707,7 +713,12 @@ def view_customer_orders(order_data):
                       f"{selected_item.item_id}")
 
                 # Here need to move to order display
-                # customer_display()
+                customer_display("view_orders")
+                order_display()
+
+
+def order_display():
+    print("Im empty right now")
 
 
 def main():
