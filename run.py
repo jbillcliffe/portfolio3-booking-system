@@ -8,6 +8,7 @@ import os
 import gspread
 from google.oauth2.service_account import Credentials
 from customers import Customer
+from orders import Order
 from items import Item
 
 # Global Constant Google Sheet Variables #
@@ -187,7 +188,8 @@ def multiline_display_printer(display_list, menu_return=False):
         cprint("----------------------------", "green")
 
 
-def search_worksheet(search_this, search_columns, search_value):
+def search_worksheet(search_this, search_columns,
+                     search_value, search_mod=None):
     """
     The function is the main initiator to get a Customer object.
     - When "customers" worksheet is searched, it will return the
@@ -208,62 +210,80 @@ def search_worksheet(search_this, search_columns, search_value):
     search_results = []
     print(f"Searching {search_this.capitalize()}.....")
     search_worksheet = SHEET.worksheet(search_this)
+
     # search_columns is defined by index (1 index in google sheets)
-    for x in search_columns:
-        values = search_worksheet.findall(search_value, in_column=x)
-        # If customers table is being searched, get data and insert
-        # directly
-        if search_this == "customers":
+    if search_mod == None:
+        for x in search_columns:
+            values = search_worksheet.findall(search_value, in_column=x)
+            # If customers table is being searched, get data and insert
+            # directly
+            if search_this == "customers":
+                for y in values:
+                    row = search_worksheet.row_values(y.row)
+                    search_results.append(row)
+            elif search_this == "orders" or search_this == "invoices":
+                # Get customer_id from "orders", then add to
+                # customer_id_list. Use this list to search "customers".
+                # Then return customer data
+                customer_id_list = []
+                if search_this == "orders":
+                    for y in values:
+                        row = search_worksheet.row_values(y.row)
+                        customer_id = row[1]
+                        customer_id_list.append(customer_id)
+                # Get order_id from "invoices", to then get customer_id
+                # from "orders". Then create a customer_id_list, which can
+                # be used to search "customers" (at "for z in")
+                if search_this == "invoices":
+                    for y in values:
+                        order_sheet = SHEET.worksheet("orders")
+                        row = search_worksheet.row_values(y.row)
+                        order_id = row[1]
+                        order_row = order_sheet.find(order_id, in_column=0)
+                        order_values = order_sheet.row_values(order_row.row)
+                        customer_id = order_values[1]
+                        customer_id_list.append(customer_id)
+                # Use the customer_id_list generated from searching "invoices"
+                # or "orders" to search "customers" for customer data.
+                # Then return the customer data
+                for z in customer_id_list:
+                    customer_values = SHEET.worksheet(
+                                                    "customers").find(
+                                                    z, in_column=1)
+                    customer_row = SHEET.worksheet(
+                                                "customers").row_values(
+                                                customer_values.row)
+                    search_results.append(customer_row)
+
+        if len(search_results) == 0:
+            terminal_clear()
+            create_header_title("Search Customer")
+            cprint("----------------------------", "red")
+            cprint("ERROR: No Customer Found.", "red")
+            cprint("----------------------------\n", "red")
+
+            return search_customer()
+        else:
+            print("Search Complete")
+            print("----------------------------")
+            return search_results
+
+    elif search_mod == "view_orders":
+        order_result = []
+        for x in search_columns:
+            values = search_worksheet.findall(search_value, in_column=x)
+
             for y in values:
                 row = search_worksheet.row_values(y.row)
-                search_results.append(row)
-        elif search_this == "orders" or search_this == "invoices":
-            # Get customer_id from "orders", then add to
-            # customer_id_list. Use this list to search "customers".
-            # Then return customer data
-            customer_id_list = []
-            if search_this == "orders":
-                for y in values:
-                    row = search_worksheet.row_values(y.row)
-                    customer_id = row[1]
-                    customer_id_list.append(customer_id)
-            # Get order_id from "invoices", to then get customer_id
-            # from "orders". Then create a customer_id_list, which can
-            # be used to search "customers" (at "for z in")
-            if search_this == "invoices":
-                for y in values:
-                    order_sheet = SHEET.worksheet("orders")
-                    row = search_worksheet.row_values(y.row)
-                    order_id = row[1]
-                    order_row = order_sheet.find(order_id, in_column=0)
-                    order_values = order_sheet.row_values(order_row.row)
-                    customer_id = order_values[1]
-                    customer_id_list.append(customer_id)
-            # Use the customer_id_list generated from searching "invoices"
-            # or "orders" to search "customers" for customer data.
-            # Then return the customer data
-            for z in customer_id_list:
-                customer_values = SHEET.worksheet(
-                                                "customers").find(
-                                                z, in_column=1)
-                customer_row = SHEET.worksheet(
-                                            "customers").row_values(
-                                            customer_values.row)
-                search_results.append(customer_row)
+                item_id = row[2]
+                item_sheet = SHEET.worksheet("items")
+                item_cell = item_sheet.find(item_id, in_column=1)
+                item_row = item_values.row_values(item_cell.row)
+                order_result.append([row, item_row])
 
-    if len(search_results) == 0:
-        terminal_clear()
-        create_header_title("Search Customer")
-        cprint("----------------------------", "red")
-        cprint("ERROR: No Customer Found.", "red")
-        cprint("----------------------------\n", "red")
-
-        return search_customer()
-    else:
-        print("Search Complete")
-        print("----------------------------")
-        return search_results
-
+                print("Search Complete")
+                print("----------------------------")
+                return order_result
 
 def addin_selected_worksheet(data, worksheet):
     """
@@ -511,7 +531,6 @@ def customer_display(where_from=None):
         cprint("----------------------------", "yellow")
         cprint("No Update Required.", "yellow")
         cprint("----------------------------\n", "yellow")
-    customer_options_menu()
 
 
 def customer_options_menu():
@@ -538,7 +557,21 @@ def customer_options_menu():
         cells_to_update = []
 
         # Change Name
-        if customer_option_input == "3":
+        if customer_option_input == "1":
+            print("Create a new order")
+
+        elif customer_option_input == "2":
+            search_sheet = "orders"
+            search_cols = [2]
+            search_num = selected_customer.customer_id
+            search_orders = search_worksheet(search_sheet,
+                                           search_cols,
+                                           search_num,
+                                           "view_orders")
+            customer_display("view_orders")
+            view_customer_orders(search_data)
+
+        elif customer_option_input == "3":
 
             fname_input = (
                 validate_input_string("Enter customer first name : ", "fname"))
@@ -605,6 +638,67 @@ def customer_options_menu():
                                       "customers")
             customer_display("from_update")
 
+
+def view_customer_orders(order_data):
+    # ON(1): PT3-O1, CN(2): PT3-CN01(3): PT3-SN29 1ST(4): £100.00
+    # PERWEEK(5): £40.00, START(6): 11/11/2023, END(7): 20/11/2023
+    # This is required as a global outside the function.
+    # Only one customer can be worked with at a time and it is
+    # required to be manipulated in several areas
+    global selected_customer
+    global selected_order
+    terminal_clear()
+
+    if order_data:
+        if len(order_data) == 1:
+            selected_order = Order(order_data[0][0],
+                                   order_data[0][1],
+                                   order_data[0][2],
+                                   order_data[0][3],
+                                   order_data[0][4],
+                                   order_data[0][5],
+                                   order_data[0][6])
+            # Here need to move to customer display
+            order_display()
+            break
+        else:
+            order_select_number = 1
+            order_select_options = []
+            # "terminaltable" header row
+            table_data = [['', 'Order ID', 'First Name',
+                            'Last Name', 'Address', 'Postcode']]
+            create_header_title("Found Orders")
+            for order in order_data:
+
+                table_data.append([order_select_number,
+                                    customer[0], customer[1],
+                                    customer[2], customer[3],
+                                    customer[4]])
+
+                found_customers.append(Customer(customer[0],
+                                                customer[1],
+                                                customer[2],
+                                                customer[3],
+                                                customer[4]))
+
+                customer_select_options.append(str(
+                                        customer_select_number))
+                customer_select_number += 1
+
+            table = SingleTable(table_data, "Customers")
+            print(table.table)
+            customer_select_input = input(
+                            f"Choose an option from 1 "
+                            f"to {len(customer_select_options)} : ")
+
+            if validate_choice(customer_select_input,
+                               customer_select_options):
+                customer_choice_index = int(customer_select_input) - 1
+                selected_customer = found_customers[
+                        customer_choice_index]
+                # Here need to move to customer display
+                customer_display()
+                break
 
 def main():
     """
