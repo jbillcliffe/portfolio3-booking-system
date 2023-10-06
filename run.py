@@ -23,6 +23,9 @@ GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('portfolio3-booking-system')
 APPROVED_BLANKS = ["fname", "lname", "address", "postcode"]
 
+global selected_customer
+global selected_order
+global selected_item
 
 def terminal_clear():
     """
@@ -334,6 +337,7 @@ def create_new_customer():
       the length of table provides the correct next number in sequence
     """
     global selected_customer
+
     # Initialise user inputs with built in validators
     fname_input = validate_input_string("Enter customer first name : ")
     lname_input = validate_input_string("Enter customer surname : ")
@@ -546,7 +550,8 @@ def customer_display(where_from=None):
         cprint("----------------------------", "yellow")
         cprint("Orders.", "yellow")
         cprint("----------------------------\n", "yellow")
-    
+        print(selected_order)
+
     if where_from != "view_orders":
         customer_options_menu()
 
@@ -667,22 +672,27 @@ def view_customer_orders(order_data):
     global selected_order
     global selected_item
     terminal_clear()
-
+    
     if order_data:
         found_orders = []
         found_items = []
+        print(order_data)
         if len(order_data) == 1:
-            selected_order = order_data[0][0]
-            selected_item = order_data[0][1]
+            for order in order_data:
+                selected_order = order[0]
+                selected_item = order[1]
+
             customer_display("view_orders")
             order_display()
         else:
             order_select_number = 1
             order_select_options = []
+            customer_display("view_orders")
+            order_display()
             # "terminaltable" header row
             table_data = [['', 'Order ID', 'Item',
                            'Start Date', 'End Date']]
-            create_header_title("Found Orders")
+
             for order in order_data:
 
                 table_data.append([order_select_number,
@@ -692,8 +702,6 @@ def view_customer_orders(order_data):
                                    order[0].end_date])
                 found_orders.append(order[0])
                 found_items.append(order[1])
-                print(found_orders)
-                print(found_items)
                 order_select_options.append(str(
                                         order_select_number))
                 order_select_number += 1
@@ -718,7 +726,42 @@ def view_customer_orders(order_data):
 
 
 def order_display():
-    print("Im empty right now")
+    table_data = [['Order Details', ' ', ' ',
+                   'Item Details', ' ']]
+    table_data = [
+        [
+            ("Order ID").center(15),
+            (colored(selected_order.order_id, "cyan")),
+            (" ").center(5),
+            ("Item ID").center(15),
+            (colored(selected_item.item_id, "green"))],
+        [
+            ("Initial Payment").center(15),
+            (colored(selected_order.initial_payment, "cyan")),
+            (" ").center(5),
+            ("Item").center(15),
+            (colored(selected_item.item_name, "green"))],
+        [
+            ("Weekly Payment").center(15),
+            (colored(selected_order.weekly_payment, "cyan")),
+            (" ").center(5),
+            ("Item Type").center(15),
+            (colored(selected_item.item_type, "green"))],
+        [
+            ("Start Date").center(15),
+            (colored(selected_order.start_date, "cyan")),
+            (" ").center(5),
+            ("Item Income").center(15),
+            (colored(selected_item.item_income, "green"))],
+        [
+            ("End Date").center(15),
+            (colored(selected_order.end_date, "cyan")),
+            (" ").center(5),
+            (" ").center(15),
+            (" ")]
+    ]
+    table = SingleTable(table_data)
+    print(table.table)
 
 
 def main():
