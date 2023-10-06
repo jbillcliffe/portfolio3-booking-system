@@ -212,7 +212,7 @@ def search_worksheet(search_this, search_columns,
     search_worksheet = SHEET.worksheet(search_this)
 
     # search_columns is defined by index (1 index in google sheets)
-    if search_mod == None:
+    if search_mod is None:
         for x in search_columns:
             values = search_worksheet.findall(search_value, in_column=x)
             # If customers table is being searched, get data and insert
@@ -275,15 +275,22 @@ def search_worksheet(search_this, search_columns,
 
             for y in values:
                 row = search_worksheet.row_values(y.row)
+                order_object = Order(row[0], row[1], row[2], row[3],
+                                     row[4], row[5], row[6])
                 item_id = row[2]
                 item_sheet = SHEET.worksheet("items")
                 item_cell = item_sheet.find(item_id, in_column=1)
-                item_row = item_values.row_values(item_cell.row)
-                order_result.append([row, item_row])
+                item_row = item_sheet.row_values(item_cell.row)
+                item_object = Item(item_row[0], item_row[1], item_row[2],
+                                   item_row[3], item_row[4], item_row[5],
+                                   item_row[6], item_row[7], item_row[8])
+                order_result.append([order_object, item_object])
 
-                print("Search Complete")
-                print("----------------------------")
+            if len(order_result) == 0:
+                customer_display("no_orders_found")
+            else:
                 return order_result
+
 
 def addin_selected_worksheet(data, worksheet):
     """
@@ -531,6 +538,11 @@ def customer_display(where_from=None):
         cprint("----------------------------", "yellow")
         cprint("No Update Required.", "yellow")
         cprint("----------------------------\n", "yellow")
+    elif where_from == "no_orders_found":
+        cprint("----------------------------", "yellow")
+        cprint("No Orders Found.", "yellow")
+        cprint("----------------------------\n", "yellow")
+    customer_options_menu()
 
 
 def customer_options_menu():
@@ -565,11 +577,10 @@ def customer_options_menu():
             search_cols = [2]
             search_num = selected_customer.customer_id
             search_orders = search_worksheet(search_sheet,
-                                           search_cols,
-                                           search_num,
-                                           "view_orders")
-            customer_display("view_orders")
-            view_customer_orders(search_data)
+                                             search_cols,
+                                             search_num,
+                                             "view_orders")
+            view_customer_orders(search_orders)
 
         elif customer_option_input == "3":
 
@@ -640,65 +651,64 @@ def customer_options_menu():
 
 
 def view_customer_orders(order_data):
-    # ON(1): PT3-O1, CN(2): PT3-CN01(3): PT3-SN29 1ST(4): £100.00
+    # ON(1): PT3-01, CN(2): PT3-CN01, IN(3): PT3-SN29, 1ST(4): £100.00
     # PERWEEK(5): £40.00, START(6): 11/11/2023, END(7): 20/11/2023
+    # ITEMTYPE(1):Bed, ITEM NAME(2): Hospital Bed
     # This is required as a global outside the function.
     # Only one customer can be worked with at a time and it is
     # required to be manipulated in several areas
-    global selected_customer
+    #
     global selected_order
+    global selected_item
     terminal_clear()
 
     if order_data:
+        found_orders = []
+        found_items = []
         if len(order_data) == 1:
-            selected_order = Order(order_data[0][0],
-                                   order_data[0][1],
-                                   order_data[0][2],
-                                   order_data[0][3],
-                                   order_data[0][4],
-                                   order_data[0][5],
-                                   order_data[0][6])
-            # Here need to move to customer display
-            order_display()
-            break
+            selected_order = order_data[0][0]
+            selected_item = order_data[0][1]
+            print(f"you chose {selected_order.order_id} : "
+                  f"{selected_item.item_id}")
         else:
             order_select_number = 1
             order_select_options = []
             # "terminaltable" header row
-            table_data = [['', 'Order ID', 'First Name',
-                            'Last Name', 'Address', 'Postcode']]
+            table_data = [['', 'Order ID', 'Item',
+                           'Start Date', 'End Date']]
             create_header_title("Found Orders")
             for order in order_data:
 
                 table_data.append([order_select_number,
-                                    customer[0], customer[1],
-                                    customer[2], customer[3],
-                                    customer[4]])
+                                   order[0].order_id,
+                                   order[1].item_name,
+                                   order[0].start_date,
+                                   order[0].end_date])
+                found_orders.append(order[0])
+                found_items.append(order[1])
+                print(found_orders)
+                print(found_items)
+                order_select_options.append(str(
+                                        order_select_number))
+                order_select_number += 1
 
-                found_customers.append(Customer(customer[0],
-                                                customer[1],
-                                                customer[2],
-                                                customer[3],
-                                                customer[4]))
-
-                customer_select_options.append(str(
-                                        customer_select_number))
-                customer_select_number += 1
-
-            table = SingleTable(table_data, "Customers")
+            table = SingleTable(table_data, "Orders")
             print(table.table)
-            customer_select_input = input(
+            order_select_input = input(
                             f"Choose an option from 1 "
-                            f"to {len(customer_select_options)} : ")
+                            f"to {len(order_select_options)} : ")
 
-            if validate_choice(customer_select_input,
-                               customer_select_options):
-                customer_choice_index = int(customer_select_input) - 1
-                selected_customer = found_customers[
-                        customer_choice_index]
-                # Here need to move to customer display
-                customer_display()
-                break
+            if validate_choice(order_select_input,
+                               order_select_options):
+                order_choice_index = int(order_select_input) - 1
+                selected_order = found_orders[order_choice_index]
+                selected_item = found_items[order_choice_index]
+                print(f"you chose {selected_order.order_id} : "
+                      f"{selected_item.item_id}")
+
+                # Here need to move to order display
+                # customer_display()
+
 
 def main():
     """
