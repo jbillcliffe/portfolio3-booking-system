@@ -524,6 +524,26 @@ def customer_display(where_from=None):
             (" ").center(5),
             (colored("5. Main Menu", "yellow")).center(30)]]
 
+    if (where_from == "view_orders" or where_from == "selected_order"):
+        order_options = ["Despatches",
+                         "Item",
+                         "Finance",
+                         "End Agreement",
+                         "Customer Options",
+                         "Main Menu"]
+        for x in table_data:
+            index = table_data.index(x)
+            x.pop()
+            x.pop()
+            x.append((colored(f"{index+1}. {order_options[index]}",
+                      "yellow")).center(30))
+        
+        table_data.append([
+                            (" ").center(15),
+                            (" ").center(25),
+                            (colored(f"6. {order_options[5]}",
+                             "yellow")).center(30)])
+
     table = SingleTable(table_data)
     table.inner_heading_row_border = False
     table.inner_row_border = False
@@ -535,24 +555,25 @@ def customer_display(where_from=None):
     print(table_string)
 
     if where_from == "from_update":
-        cprint("----------------------------", "green")
-        cprint(f"{selected_customer.customer_id} Updated.", "green")
-        cprint("----------------------------\n", "green")
+        cprint("-------------------------------", "green")
+        cprint(f"--- {selected_customer.customer_id} "
+               "Updated -----------", "green")
+        cprint("-------------------------------", "green")
     elif where_from == "no_update_made":
-        cprint("----------------------------", "yellow")
-        cprint("No Update Required.", "yellow")
-        cprint("----------------------------\n", "yellow")
+        cprint("-------------------------------", "yellow")
+        cprint("--- No Update Required --------", "yellow")
+        cprint("-------------------------------", "yellow")
     elif where_from == "no_orders_found":
-        cprint("----------------------------", "red")
-        cprint("No Orders Found.", "red")
-        cprint("----------------------------\n", "red")
+        cprint("-------------------------------", "red")
+        cprint("--- No Orders Found -----------", "red")
+        cprint("-------------------------------", "red")
     elif where_from == "view_orders":
-        cprint("----------------------------", "yellow")
-        cprint("Orders.", "yellow")
-        cprint("----------------------------\n", "yellow")
-        print(selected_order)
+        cprint("--- Orders --------------------", "yellow")
+    elif where_from == "selected_order":
+        cprint(f"--- Order : {selected_order.order_id} "
+               "-----------", "yellow")
 
-    if where_from != "view_orders":
+    if where_from != "view_orders" and where_from != "selected_order":
         customer_options_menu()
 
 
@@ -672,23 +693,21 @@ def view_customer_orders(order_data):
     global selected_order
     global selected_item
     terminal_clear()
-    
+
     if order_data:
         found_orders = []
         found_items = []
-        print(order_data)
         if len(order_data) == 1:
             for order in order_data:
                 selected_order = order[0]
                 selected_item = order[1]
 
-            customer_display("view_orders")
+            customer_display("selected_order")
             order_display()
         else:
             order_select_number = 1
             order_select_options = []
             customer_display("view_orders")
-            order_display()
             # "terminaltable" header row
             table_data = [['', 'Order ID', 'Item',
                            'Start Date', 'End Date']]
@@ -726,41 +745,38 @@ def view_customer_orders(order_data):
 
 
 def order_display():
-    table_data = [['Order Details', ' ', ' ',
+    table_data = [['Order Details', ' ',
                    'Item Details', ' ']]
     table_data = [
         [
-            ("Order ID").center(15),
-            (colored(selected_order.order_id, "cyan")),
-            (" ").center(5),
+            ("Initial Payment").center(15),
+            (colored(selected_order.initial_payment, "cyan")),
             ("Item ID").center(15),
             (colored(selected_item.item_id, "green"))],
         [
-            ("Initial Payment").center(15),
-            (colored(selected_order.initial_payment, "cyan")),
-            (" ").center(5),
+            ("Weekly Payment").center(15),
+            (colored(selected_order.weekly_payment, "cyan")),
             ("Item").center(15),
             (colored(selected_item.item_name, "green"))],
         [
-            ("Weekly Payment").center(15),
-            (colored(selected_order.weekly_payment, "cyan")),
-            (" ").center(5),
+            ("Start Date").center(15),
+            (colored(selected_order.start_date, "cyan")),
             ("Item Type").center(15),
             (colored(selected_item.item_type, "green"))],
         [
-            ("Start Date").center(15),
-            (colored(selected_order.start_date, "cyan")),
-            (" ").center(5),
-            ("Item Income").center(15),
-            (colored(selected_item.item_income, "green"))],
-        [
             ("End Date").center(15),
             (colored(selected_order.end_date, "cyan")),
-            (" ").center(5),
-            (" ").center(15),
-            (" ")]
+            ("Item Income").center(15),
+            (colored(selected_item.item_income, "green"))]
     ]
     table = SingleTable(table_data)
+    table.inner_heading_row_border = False
+    table.inner_row_border = False
+    table.justify_columns[0] = 'left'
+    table.justify_columns[1] = 'right'
+    table.justify_columns[3] = 'left'
+    table.justify_columns[4] = 'right'
+
     print(table.table)
 
 
