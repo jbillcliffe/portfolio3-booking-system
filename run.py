@@ -27,6 +27,7 @@ global selected_customer
 global selected_order
 global selected_item
 
+
 def terminal_clear():
     """
     A quick function to determine OS and clear terminal
@@ -499,34 +500,33 @@ def customer_display(where_from=None):
 
     table_data = [
         [
-            ("Customer ID").center(15),
-            (colored(selected_customer.customer_id, "cyan")),
-            (" ").center(5),
-            (colored("1. Add New Order", "yellow")).center(30)],
+            ("Customer ID").ljust(15),
+            ((colored(selected_customer.customer_id, "cyan"))).rjust(25),
+            ("").ljust(4),
+            ((colored("1. Add New Order", "yellow"))).rjust(30)],
         [
-            ("Address").center(15),
-            (colored(selected_customer.address, "cyan")),
-            (" ").center(5),
-            (colored("2. View Orders", "yellow")).center(30)],
+            ("Address").ljust(15),
+            ((colored(selected_customer.address, "cyan"))).rjust(25),
+            ("").ljust(4),
+            ((colored("2. View Orders", "yellow"))).rjust(30)],
         [
-            ("Postcode").center(15),
-            (colored(selected_customer.postcode, "cyan")),
-            (" ").center(5),
-            (colored("3. Change Name", "yellow")).center(30)],
+            ("Postcode").ljust(15),
+            ((colored(selected_customer.postcode, "cyan"))).rjust(25),
+            ("").ljust(4),
+            (colored("3. Change Name", "yellow")).rjust(30)],
         [
-            (" ").center(15),
-            (" ").center(25),
-            (" ").center(5),
-            (colored("4. Change Address", "yellow")).center(30)],
+            ("  ").ljust(15),
+            ("  ").rjust(25),
+            ("").ljust(4),
+            ((colored("4. Change Address", "yellow"))).rjust(30)],
         [
-            (" ").center(15),
-            (" ").center(25),
-            (" ").center(5),
-            (colored("5. Main Menu", "yellow")).center(30)]]
+            ("  ").ljust(15),
+            ("  ").rjust(25),
+            ("").ljust(4),
+            ((colored("5. Main Menu", "yellow"))).rjust(30)]]
 
     if (where_from == "view_orders" or where_from == "selected_order"):
         order_options = ["Despatches",
-                         "Item",
                          "Finance",
                          "End Agreement",
                          "Customer Options",
@@ -534,25 +534,17 @@ def customer_display(where_from=None):
         for x in table_data:
             index = table_data.index(x)
             x.pop()
-            x.pop()
-            x.append((colored(f"{index+1}. {order_options[index]}",
-                      "yellow")).center(30))
-        
-        table_data.append([
-                            (" ").center(15),
-                            (" ").center(25),
-                            (colored(f"6. {order_options[5]}",
-                             "yellow")).center(30)])
-
+            x.append(((colored(f"{index+1}. {order_options[index]}",
+                      "yellow"))).rjust(30))
     table = SingleTable(table_data)
+
     table.inner_heading_row_border = False
     table.inner_row_border = False
+    table.justify_columns[0] = 'left'
     table.justify_columns[1] = 'right'
-    table.padding_left = 0
-    table.padding_right = 1
-
-    table_string = (table.table).center(80)
-    print(table_string)
+    table.justify_columns[2] = 'left'
+    table.justify_columns[3] = 'right'
+    print(table.table)
 
     if where_from == "from_update":
         cprint("-------------------------------", "green")
@@ -749,33 +741,33 @@ def order_display():
                    'Item Details', ' ']]
     table_data = [
         [
-            ("Initial Payment").center(15),
-            (colored(selected_order.initial_payment, "cyan")),
-            ("Item ID").center(15),
-            (colored(selected_item.item_id, "green"))],
+            ("Initial Payment").ljust(17),
+            ((colored(selected_order.initial_payment, "cyan"))).rjust(19),
+            ("Item ID").ljust(12),
+            ((colored(selected_item.item_id, "green"))).rjust(33)],
         [
-            ("Weekly Payment").center(15),
-            (colored(selected_order.weekly_payment, "cyan")),
-            ("Item").center(15),
-            (colored(selected_item.item_name, "green"))],
+            ("Weekly Payment").ljust(17),
+            ((colored(selected_order.weekly_payment, "cyan"))).rjust(19),
+            ("Item").ljust(12),
+            ((colored(selected_item.item_name, "green"))).rjust(33)],
         [
-            ("Start Date").center(15),
-            (colored(selected_order.start_date, "cyan")),
-            ("Item Type").center(15),
-            (colored(selected_item.item_type, "green"))],
+            ("Start Date").ljust(17),
+            ((colored(selected_order.start_date, "cyan"))).rjust(19),
+            ("Item Type").ljust(12),
+            ((colored(selected_item.item_type, "green"))).rjust(33)],
         [
-            ("End Date").center(15),
-            (colored(selected_order.end_date, "cyan")),
-            ("Item Income").center(15),
-            (colored(selected_item.item_income, "green"))]
+            ("End Date").ljust(17),
+            ((colored(selected_order.end_date, "cyan"))).rjust(19),
+            ("Item Income").ljust(12),
+            ((colored(selected_item.item_income, "green"))).rjust(33)]
     ]
     table = SingleTable(table_data)
     table.inner_heading_row_border = False
     table.inner_row_border = False
     table.justify_columns[0] = 'left'
     table.justify_columns[1] = 'right'
-    table.justify_columns[3] = 'left'
-    table.justify_columns[4] = 'right'
+    table.justify_columns[2] = 'left'
+    table.justify_columns[3] = 'right'
 
     print(table.table)
 
