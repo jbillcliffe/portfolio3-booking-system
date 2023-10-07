@@ -19,13 +19,7 @@ class Order:
         self.start_date = start_date
         self.end_date = end_date
 
-    def load_selected_order(self):
-        return self.__dict__
-
     def order_display(self, order_item):
-
-        table_data = [['Order Details', ' ',
-                       'Item Details', ' ']]
         table_data = [
             [
                 ("Initial Payment").ljust(17),

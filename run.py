@@ -291,7 +291,7 @@ def search_worksheet(search_this, search_columns,
                 order_result.append([order_object, item_object])
 
             if len(order_result) == 0:
-                customer_display("no_orders_found")
+                selected_customer.customer_display("no_orders_found")
             else:
                 return order_result
 
@@ -353,7 +353,7 @@ def create_new_customer():
                                  address_input, postcode_input)
     if addin_selected_worksheet(customer_data, "customers"):
         # Here need to move to customer display
-        customer_display()
+        selected_customer.customer_display()
 
 
 def search_customer():
@@ -369,6 +369,9 @@ def search_customer():
     - Then run the user choice through the validator based
       on choices sent in the array (1-7)
     """
+
+    options_check = ""
+
     while True:
         search_data = []
         search_num = ""
@@ -447,7 +450,7 @@ def search_customer():
                                                  search_data[0][3],
                                                  search_data[0][4])
                     # Here need to move to customer display
-                    customer_display()
+                    selected_customer.customer_display()
                     break
                 else:
                     customer_select_number = 1
@@ -484,89 +487,14 @@ def search_customer():
                         customer_choice_index = int(customer_select_input) - 1
                         selected_customer = found_customers[
                                 customer_choice_index]
-                        # Here need to move to customer display
-                        customer_display()
+
+                        terminal_clear()
+                        create_header_title(f"{selected_customer.fname} "
+                                            f"{selected_customer.lname}",
+                                            "customer")
+                        options_check = selected_customer.customer_display()
                         break
-
-
-def customer_display(where_from=None):
-    """
-    Use the selected_customer to load the customer data into a formatted
-    terminal window
-    """
-    terminal_clear()
-    create_header_title(f"{selected_customer.fname} "
-                        f"{selected_customer.lname}", "customer")
-
-    table_data = [
-        [
-            ("Customer ID").ljust(15),
-            ((colored(selected_customer.customer_id, "cyan"))).rjust(25),
-            ("").ljust(4),
-            ((colored("1. Add New Order", "yellow"))).rjust(30)],
-        [
-            ("Address").ljust(15),
-            ((colored(selected_customer.address, "cyan"))).rjust(25),
-            ("").ljust(4),
-            ((colored("2. View Orders", "yellow"))).rjust(30)],
-        [
-            ("Postcode").ljust(15),
-            ((colored(selected_customer.postcode, "cyan"))).rjust(25),
-            ("").ljust(4),
-            (colored("3. Change Name", "yellow")).rjust(30)],
-        [
-            ("  ").ljust(15),
-            ("  ").rjust(25),
-            ("").ljust(4),
-            ((colored("4. Change Address", "yellow"))).rjust(30)],
-        [
-            ("  ").ljust(15),
-            ("  ").rjust(25),
-            ("").ljust(4),
-            ((colored("5. Main Menu", "yellow"))).rjust(30)]]
-
-    if (where_from == "view_orders" or where_from == "selected_order"):
-        order_options = ["Despatches",
-                         "Finance",
-                         "End Agreement",
-                         "Customer Options",
-                         "Main Menu"]
-        for x in table_data:
-            index = table_data.index(x)
-            x.pop()
-            x.append(((colored(f"{index+1}. {order_options[index]}",
-                      "yellow"))).rjust(30))
-    table = SingleTable(table_data)
-
-    table.inner_heading_row_border = False
-    table.inner_row_border = False
-    table.justify_columns[0] = 'left'
-    table.justify_columns[1] = 'right'
-    table.justify_columns[2] = 'left'
-    table.justify_columns[3] = 'right'
-    print(table.table)
-
-    if where_from == "from_update":
-        cprint("-------------------------------", "green")
-        cprint(f"--- {selected_customer.customer_id} "
-               "Updated -----------", "green")
-        cprint("-------------------------------", "green")
-    elif where_from == "no_update_made":
-        cprint("-------------------------------", "yellow")
-        cprint("--- No Update Required --------", "yellow")
-        cprint("-------------------------------", "yellow")
-    elif where_from == "no_orders_found":
-        cprint("-------------------------------", "red")
-        cprint("--- No Orders Found -----------", "red")
-        cprint("-------------------------------", "red")
-    elif where_from == "view_orders":
-        cprint("--- Orders --------------------", "yellow")
-    elif where_from == "selected_order":
-        cprint(f"--- Order : {selected_order.order_id} "
-               "-----------", "yellow")
-
-    if where_from != "view_orders" and where_from != "selected_order":
-        customer_options_menu()
+    customer_options_menu()
 
 
 def customer_options_menu():
@@ -614,7 +542,7 @@ def customer_options_menu():
                 validate_input_string("Enter customer surname : ", "lname"))
 
             if fname_input == "EmptyOK" and lname_input == "EmptyOK":
-                customer_display("no_update_made")
+                selected_customer.customer_display("no_update_made")
 
             elif fname_input == "EmptyOK" and lname_input != "EmptyOK":
                 update_data = [lname_input]
@@ -631,7 +559,7 @@ def customer_options_menu():
                 cells_to_update = [2, 3]
                 selected_customer.fname = fname_input
                 selected_customer.lname = lname_input
-
+        
         # Change Address
         elif customer_option_input == "4":
 
@@ -643,7 +571,7 @@ def customer_options_menu():
                                       "postcode"))
 
             if address_input == "EmptyOK" and postcode_input == "EmptyOK":
-                customer_display("no_update_made")
+                selected_customer.customer_display("no_update_made")
 
             elif address_input == "EmptyOK" and postcode_input != "EmptyOK":
                 update_data = [postcode_input]
@@ -671,8 +599,8 @@ def customer_options_menu():
                                       update_data,
                                       cells_to_update,
                                       "customers")
-            customer_display("from_update")
-
+            selected_customer.customer_display("from_update")
+            
 
 def view_customer_orders(order_data):
     # ON(1): PT3-01, CN(2): PT3-CN01, IN(3): PT3-SN29, 1ST(4): £100.00
@@ -685,7 +613,9 @@ def view_customer_orders(order_data):
     global selected_order
     global selected_item
     terminal_clear()
-
+    create_header_title(f"{selected_customer.fname} "
+                        f"{selected_customer.lname}",
+                        "customer")
     if order_data:
         found_orders = []
         found_items = []
@@ -694,13 +624,16 @@ def view_customer_orders(order_data):
                 selected_order = order[0]
                 selected_item = order[1]
 
-            customer_display("selected_order")
-            print(selected_order.order_display(selected_item))
+            show_options_menu = selected_customer.customer_display(
+                selected_order.order_id,
+                "selected_order")
+
+            selected_order.order_display(selected_item)
 
         else:
             order_select_number = 1
             order_select_options = []
-            customer_display("view_orders")
+            selected_customer.customer_display("view_orders")
             # "terminaltable" header row
             table_data = [['', 'Order ID', 'Item',
                            'Start Date', 'End Date']]
@@ -733,7 +666,7 @@ def view_customer_orders(order_data):
                       f"{selected_item.item_id}")
 
                 # Here need to move to order display
-                customer_display("view_orders")
+                selected_customer.customer_display(selected_order, "view_orders")
                 print(selected_order.order_display(selected_item))
 
 
