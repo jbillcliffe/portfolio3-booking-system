@@ -695,7 +695,8 @@ def view_customer_orders(order_data):
                 selected_item = order[1]
 
             customer_display("selected_order")
-            order_display()
+            print(selected_order.order_display(selected_item))
+
         else:
             order_select_number = 1
             order_select_options = []
@@ -733,43 +734,7 @@ def view_customer_orders(order_data):
 
                 # Here need to move to order display
                 customer_display("view_orders")
-                order_display()
-
-
-def order_display():
-    table_data = [['Order Details', ' ',
-                   'Item Details', ' ']]
-    table_data = [
-        [
-            ("Initial Payment").ljust(17),
-            ((colored(selected_order.initial_payment, "cyan"))).rjust(19),
-            ("Item ID").ljust(12),
-            ((colored(selected_item.item_id, "green"))).rjust(33)],
-        [
-            ("Weekly Payment").ljust(17),
-            ((colored(selected_order.weekly_payment, "cyan"))).rjust(19),
-            ("Item").ljust(12),
-            ((colored(selected_item.item_name, "green"))).rjust(33)],
-        [
-            ("Start Date").ljust(17),
-            ((colored(selected_order.start_date, "cyan"))).rjust(19),
-            ("Item Type").ljust(12),
-            ((colored(selected_item.item_type, "green"))).rjust(33)],
-        [
-            ("End Date").ljust(17),
-            ((colored(selected_order.end_date, "cyan"))).rjust(19),
-            ("Item Income").ljust(12),
-            ((colored(selected_item.item_income, "green"))).rjust(33)]
-    ]
-    table = SingleTable(table_data)
-    table.inner_heading_row_border = False
-    table.inner_row_border = False
-    table.justify_columns[0] = 'left'
-    table.justify_columns[1] = 'right'
-    table.justify_columns[2] = 'left'
-    table.justify_columns[3] = 'right'
-
-    print(table.table)
+                print(selected_order.order_display(selected_item))
 
 
 def main():
