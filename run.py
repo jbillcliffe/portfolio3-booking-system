@@ -192,9 +192,10 @@ def multiline_display_printer(display_list, menu_return=False):
         cprint("----------------------------", "green")
 
 
-def search_worksheet(search_this, search_columns,
-                     search_value, search_mod=None):
+def search_worksheet(search_this, search_value=None,
+                     search_columns=None, search_mod=None):
     """
+
     The function is the main initiator to get a Customer object.
     - When "customers" worksheet is searched, it will return the
     customer ids directly.
@@ -294,6 +295,28 @@ def search_worksheet(search_this, search_columns,
                 selected_customer.customer_display("no_orders_found")
             else:
                 return order_result
+    elif search_mod == "get_items":
+        get_items_list = SHEET.worksheet(search_this).get_all_values()
+        items_list = []
+        types_list = []
+
+        for x in get_items_list:
+            if x[0] != "item_id":
+                item_type = x[1]
+                this_item_object = Item(
+                                        x[0], x[1], x[2],
+                                        x[3], x[4], x[5],
+                                        x[6], x[7], x[8]
+                                    )
+
+                items_list.append(this_item_object)
+
+                if (item_type not in types_list and
+                        item_type != "item_type"):
+
+                    types_list.append(item_type)
+
+        return items_list, types_list
 
 
 def addin_selected_worksheet(data, worksheet):
@@ -370,8 +393,6 @@ def search_customer():
       on choices sent in the array (1-7)
     """
 
-    options_check = ""
-
     while True:
         search_data = []
         search_num = ""
@@ -435,8 +456,8 @@ def search_customer():
         if search_num:
             found_customers = []
             search_data = search_worksheet(search_sheet,
-                                           search_cols,
-                                           search_num)
+                                           search_num,
+                                           search_cols)
 
             # This is required as a global outside the function.
             # Only one customer can be worked with at a time and it is
@@ -525,22 +546,31 @@ def customer_options_menu():
         update_data = []
         cells_to_update = []
 
-        # Change Name
+        # Create New Order
         if customer_option_input == "1":
-            print("Create a new order")
-
+            items_list, types_list = search_worksheet("items",
+                                                      None,
+                                                      None,
+                                                      "get_items")
+            terminal_clear()
+            create_header_title(f"{selected_customer.fname} "
+                                f"{selected_customer.lname}",
+                                "customer")
+            selected_customer.customer_display()
+            add_new_order(items_list, types_list)
+                
+        # Change Name
         elif customer_option_input == "2":
             search_sheet = "orders"
             search_cols = [2]
             search_num = selected_customer.customer_id
             search_orders = search_worksheet(search_sheet,
-                                             search_cols,
                                              search_num,
+                                             search_cols,
                                              "view_orders")
             view_customer_orders(search_orders)
 
         elif customer_option_input == "3":
-
             fname_input = (
                 validate_input_string("Enter customer first name : ", "fname"))
             lname_input = (
@@ -604,7 +634,12 @@ def customer_options_menu():
                                       update_data,
                                       cells_to_update,
                                       "customers")
+            terminal_clear()
+            create_header_title(f"{selected_customer.fname} "
+                                f"{selected_customer.lname}",
+                                "customer")
             selected_customer.customer_display("from_update")
+            customer_options_menu()
 
 
 def view_customer_orders(order_data):
@@ -793,6 +828,61 @@ def order_options_menu():
                                       "customers")
             selected_customer.customer_display("from_update")
         """
+
+
+def add_new_order(items_list, types_list):
+    type_choices_end = len(types_list)+1
+    type_header_list = []
+    type_value_list = []
+    type_list_data = []
+    for _a in types_list:
+        type_header_list.append(str(len(type_header_list)+1).center(15))
+    for _b in types_list:
+        type_value_list.append(((colored(_b, "green"))).center(15))
+
+    type_list_data.append(list(type_header_list))
+    type_list_data.append(list(type_value_list))
+
+    item_table_data = ['', 'Item Name', 'Initial Cost', 'Cost Per Week', '']
+    cprint("--- Choose Item To Order ------", "yellow")
+
+    type_table_data = [list(type_header_list), list(types_list)]
+    
+    type_table = SingleTable(type_table_data)
+    print(type_table.table)
+    order_type_select = input("Choose type of item to order : ")
+    if validate_choice(order_type_select,
+                       [*range(1, type_choices_end, 1)]):
+        type_chosen = types_list[(int(order_type_select)-1)]
+        item_counter = 1
+        for x in items_list:
+            if x.item_type == type_chosen:
+                if x.item_name not in item_table_data:
+                    item_table_data.append(
+                        [item_counter,
+                         x.item_name,
+                         x.item_cost_start,
+                         x.item_cost_week,
+                         1])
+                    item_counter += 1
+                else:
+                    for y in item_table_data:
+                        if y[1] == x.item_name:
+                            count = int(y[4])
+                            count += 1
+                            y[4] = count
+
+        for z in item_table_data:
+            count = z[4]
+            if count <= 0:
+                count = colored(count, "red")
+            elif count > 0 and count < 3:
+                count = colored(count, "yellow")
+            else:
+                count = colored(count, "green")
+
+            item_table = SingleTable(item_table_data)
+            item_table.inner_row_border = False
 
 
 def main():

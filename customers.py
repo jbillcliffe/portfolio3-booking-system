@@ -21,7 +21,6 @@ class Customer:
         Use the selected_customer to load the customer data into a formatted
         terminal window
         """
-
         table_data = [
             [
                 ("Customer ID").ljust(15),
