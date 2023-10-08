@@ -437,11 +437,13 @@ def search_customer():
             search_data = search_worksheet(search_sheet,
                                            search_cols,
                                            search_num)
+
             # This is required as a global outside the function.
             # Only one customer can be worked with at a time and it is
             # required to be manipulated in several areas
             global selected_customer
             terminal_clear()
+            
             if search_data:
                 if len(search_data) == 1:
                     selected_customer = Customer(search_data[0][0],
@@ -450,6 +452,9 @@ def search_customer():
                                                  search_data[0][3],
                                                  search_data[0][4])
                     # Here need to move to customer display
+                    create_header_title(f"{selected_customer.fname} "
+                                        f"{selected_customer.lname}",
+                                        "customer")
                     selected_customer.customer_display()
                     break
                 else:
@@ -492,7 +497,7 @@ def search_customer():
                         create_header_title(f"{selected_customer.fname} "
                                             f"{selected_customer.lname}",
                                             "customer")
-                        options_check = selected_customer.customer_display()
+                        selected_customer.customer_display()
                         break
     customer_options_menu()
 
@@ -559,7 +564,7 @@ def customer_options_menu():
                 cells_to_update = [2, 3]
                 selected_customer.fname = fname_input
                 selected_customer.lname = lname_input
-        
+
         # Change Address
         elif customer_option_input == "4":
 
@@ -600,7 +605,7 @@ def customer_options_menu():
                                       cells_to_update,
                                       "customers")
             selected_customer.customer_display("from_update")
-            
+
 
 def view_customer_orders(order_data):
     # ON(1): PT3-01, CN(2): PT3-CN01, IN(3): PT3-SN29, 1ST(4): £100.00
@@ -624,9 +629,8 @@ def view_customer_orders(order_data):
                 selected_order = order[0]
                 selected_item = order[1]
 
-            show_options_menu = selected_customer.customer_display(
-                selected_order.order_id,
-                "selected_order")
+            selected_customer.customer_display(selected_order.order_id,
+                                               "selected_order")
 
             selected_order.order_display(selected_item)
 
@@ -634,7 +638,7 @@ def view_customer_orders(order_data):
             order_select_number = 1
             order_select_options = []
             selected_customer.customer_display("view_orders")
-            # "terminaltable" header row
+
             table_data = [['', 'Order ID', 'Item',
                            'Start Date', 'End Date']]
 
@@ -662,12 +666,133 @@ def view_customer_orders(order_data):
                 order_choice_index = int(order_select_input) - 1
                 selected_order = found_orders[order_choice_index]
                 selected_item = found_items[order_choice_index]
-                print(f"you chose {selected_order.order_id} : "
-                      f"{selected_item.item_id}")
 
                 # Here need to move to order display
-                selected_customer.customer_display(selected_order, "view_orders")
-                print(selected_order.order_display(selected_item))
+                terminal_clear()
+                create_header_title(f"{selected_customer.fname} "
+                                    f"{selected_customer.lname}",
+                                    "customer")
+                selected_customer.customer_display(selected_order.order_id,
+                                                   "selected_order")
+                selected_order.order_display(selected_item)
+    order_options_menu()
+
+
+def order_options_menu():
+    """
+    Customer Options
+    - Here the user can select from options 1-5 and based on their feedback
+    will perform the selected option.
+    1 = Despatches
+    2 = Finance
+    3 = End Agreement
+    4 = Customer Options (back to previous, without order display)
+    5 = Main Menu
+    """
+    order_option_input = input("Choose Option : ")
+
+    if validate_choice(order_option_input,
+                       ["1", "2", "3", "4", "5"],
+                       f"{selected_customer.fname} {selected_customer.lname}",
+                       "customer"):
+        print("Where multiple fields are present, "
+              "leave blank to exclude from update")
+
+        update_data = []
+        cells_to_update = []
+
+        # Change Name
+        if order_option_input == "1":
+            print("Despatches")
+
+        elif order_option_input == "2":
+            """
+            search_sheet = "orders"
+            search_cols = [2]
+            search_num = selected_customer.customer_id
+            search_orders = search_worksheet(search_sheet,
+                                             search_cols,
+                                             search_num,
+                                             "view_orders")
+            view_customer_orders(search_orders)
+            """
+            print("Finance")
+
+        elif order_option_input == "3":
+            """
+            fname_input = (
+                validate_input_string("Enter customer first name : ", "fname"))
+            lname_input = (
+                validate_input_string("Enter customer surname : ", "lname"))
+
+            if fname_input == "EmptyOK" and lname_input == "EmptyOK":
+                selected_customer.customer_display("no_update_made")
+
+            elif fname_input == "EmptyOK" and lname_input != "EmptyOK":
+                update_data = [lname_input]
+                cells_to_update = [3]
+                selected_customer.lname = lname_input
+
+            elif fname_input != "EmptyOK" and lname_input == "EmptyOK":
+                update_data = [fname_input]
+                selected_customer.fname = fname_input
+                cells_to_update = [2]
+
+            else:
+                update_data = [fname_input, lname_input]
+                cells_to_update = [2, 3]
+                selected_customer.fname = fname_input
+                selected_customer.lname = lname_input
+            """
+            print("End Agreement")
+        # Change Address
+        elif order_option_input == "4":
+            """
+            address_input = (
+                validate_input_string("Enter first line of address : ",
+                                      "address"))
+            postcode_input = (
+                validate_input_string("Enter customer postcode : ",
+                                      "postcode"))
+
+            if address_input == "EmptyOK" and postcode_input == "EmptyOK":
+                selected_customer.customer_display("no_update_made")
+
+            elif address_input == "EmptyOK" and postcode_input != "EmptyOK":
+                update_data = [postcode_input]
+                cells_to_update = [5]
+                selected_customer.postcode = postcode_input
+
+            elif address_input != "EmptyOK" and postcode_input == "EmptyOK":
+                update_data = [address_input]
+                cells_to_update = [4]
+                selected_customer.address = address_input
+
+            else:
+                update_data = [address_input, postcode_input]
+                cells_to_update = [4, 5]
+                selected_customer.address = address_input
+                selected_customer.postcode = postcode_input
+            """
+            print("Customer Options")
+            terminal_clear()
+            create_header_title(f"{selected_customer.fname} "
+                                f"{selected_customer.lname}",
+                                "customer")
+            selected_customer.customer_display()
+            customer_options_menu()
+        # Return to menu
+        elif order_option_input == "5":
+            main()
+        """
+        # Send data to be updated
+        if len(update_data) > 0:
+            update_selected_worksheet(selected_customer.customer_id,
+                                      update_data,
+                                      cells_to_update,
+                                      "customers")
+            selected_customer.customer_display("from_update")
+        """
 
 
 def main():

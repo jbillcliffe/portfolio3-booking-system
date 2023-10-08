@@ -20,6 +20,9 @@ class Order:
         self.end_date = end_date
 
     def order_display(self, order_item):
+
+        table_data = [['Order Details', ' ',
+                       'Item Details', ' ']]
         table_data = [
             [
                 ("Initial Payment").ljust(17),
@@ -49,4 +52,4 @@ class Order:
         table.justify_columns[1] = 'right'
         table.justify_columns[2] = 'left'
         table.justify_columns[3] = 'right'
-        return table.table
+        print(table.table)
