@@ -558,7 +558,7 @@ def customer_options_menu():
                                 "customer")
             selected_customer.customer_display()
             add_new_order(items_list, types_list)
-                
+
         # Change Name
         elif customer_option_input == "2":
             search_sheet = "orders"
@@ -831,27 +831,28 @@ def order_options_menu():
 
 
 def add_new_order(items_list, types_list):
-    type_choices_end = len(types_list)+1
+    type_choices_end = (len(types_list)+1)
     type_header_list = []
     type_value_list = []
     type_list_data = []
     for _a in types_list:
-        type_header_list.append(str(len(type_header_list)+1).center(15))
-    for _b in types_list:
-        type_value_list.append(((colored(_b, "green"))).center(15))
+        type_header_list.append(str(len(type_header_list)+1).center(12))
+    for b in types_list:
+        type_value_list.append(colored(str(b).center(12), "yellow"))
 
     type_list_data.append(list(type_header_list))
     type_list_data.append(list(type_value_list))
 
-    item_table_data = ['', 'Item Name', 'Initial Cost', 'Cost Per Week', '']
+    item_table_data = [['', 'Item Name', 'Initial Cost', 'Cost Per Week', '']]
     cprint("--- Choose Item To Order ------", "yellow")
 
-    type_table_data = [list(type_header_list), list(types_list)]
-    
+    type_table_data = [list(type_header_list), list(type_value_list)]
+
     type_table = SingleTable(type_table_data)
     print(type_table.table)
     order_type_select = input("Choose type of item to order : ")
-    if validate_choice(order_type_select,
+
+    if validate_choice(int(order_type_select),
                        [*range(1, type_choices_end, 1)]):
         type_chosen = types_list[(int(order_type_select)-1)]
         item_counter = 1
@@ -861,8 +862,8 @@ def add_new_order(items_list, types_list):
                     item_table_data.append(
                         [item_counter,
                          x.item_name,
-                         x.item_cost_start,
-                         x.item_cost_week,
+                         x.item_start_cost,
+                         x.item_week_cost,
                          1])
                     item_counter += 1
                 else:
@@ -870,9 +871,11 @@ def add_new_order(items_list, types_list):
                         if y[1] == x.item_name:
                             count = int(y[4])
                             count += 1
-                            y[4] = count
-
+                            y.pop
+                            y.append(count)
+        print(item_table_data)
         for z in item_table_data:
+            
             count = z[4]
             if count <= 0:
                 count = colored(count, "red")
