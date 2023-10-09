@@ -27,7 +27,6 @@ global selected_customer
 global selected_order
 global selected_item
 
-
 def terminal_clear():
     """
     A quick function to determine OS and clear terminal
@@ -195,7 +194,6 @@ def multiline_display_printer(display_list, menu_return=False):
 def search_worksheet(search_this, search_value=None,
                      search_columns=None, search_mod=None):
     """
-
     The function is the main initiator to get a Customer object.
     - When "customers" worksheet is searched, it will return the
     customer ids directly.
@@ -843,7 +841,7 @@ def add_new_order(items_list, types_list):
     type_list_data.append(list(type_header_list))
     type_list_data.append(list(type_value_list))
 
-    item_table_data = [['', 'Item Name', 'Initial Cost', 'Cost Per Week', '']]
+    item_table_data = []
     cprint("--- Choose Item To Order ------", "yellow")
 
     type_table_data = [list(type_header_list), list(type_value_list)]
@@ -858,34 +856,44 @@ def add_new_order(items_list, types_list):
         item_counter = 1
         for x in items_list:
             if x.item_type == type_chosen:
-                if x.item_name not in item_table_data:
-                    item_table_data.append(
-                        [item_counter,
-                         x.item_name,
-                         x.item_start_cost,
-                         x.item_week_cost,
-                         1])
-                    item_counter += 1
-                else:
+                if len(item_table_data) > 0:
+                    
                     for y in item_table_data:
+                        print(y[1])
+                        print(y[4])
+                        print(type(y[1]))
+                        print(type(y[4]))
                         if y[1] == x.item_name:
-                            count = int(y[4])
-                            count += 1
-                            y.pop
-                            y.append(count)
-        print(item_table_data)
+                            y[4] += 1
+                        else:
+                            item_table_data.append([item_counter,
+                                                    x.item_name,
+                                                    x.item_start_cost,
+                                                    x.item_week_cost,
+                                                    1])
+                            item_counter += 1
+                else:
+                    item_table_data.append([item_counter,
+                                            x.item_name,
+                                            x.item_start_cost,
+                                            x.item_week_cost,
+                                            1])
+                    item_counter += 1
+        """
         for z in item_table_data:
-            
-            count = z[4]
+
+            count = int(z[4])
             if count <= 0:
                 count = colored(count, "red")
             elif count > 0 and count < 3:
                 count = colored(count, "yellow")
             else:
                 count = colored(count, "green")
-
-            item_table = SingleTable(item_table_data)
-            item_table.inner_row_border = False
+        """
+        item_table = SingleTable(item_table_data)
+        item_table.inner_row_border = False
+        item_table.inner_heading_row_border = False
+        print(item_table.table)
 
 
 def main():
