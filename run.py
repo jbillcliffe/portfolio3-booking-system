@@ -4,7 +4,7 @@
 from cfonts import render, say
 from termcolor import colored, cprint
 from terminaltables import SingleTable
-from datetime import date
+from datetime import datetime
 import os
 import gspread
 from google.oauth2.service_account import Credentials
@@ -190,6 +190,21 @@ def validate_input_string(input_prompt, input_from=None):
                 return search_customer()
             else:
                 return input_string
+
+
+def validate_date(date_string):
+    try:
+        date_format = '%d/%m/%Y'
+        dateObject = datetime.strptime(date_string, date_format)
+        if dateObject:
+            return dateObject
+    except ValueError as e:
+        cprint("----------------------------------------------", "red")
+        cprint((f"ERROR: Date must be entered as D/M/YYYY ----"), "red")
+        cprint((f"{e}"), "red")
+        cprint("----------------------------------------------\n", "red")
+        return False
+    return True
 
 
 def multiline_display_printer(display_list, menu_return=False):
@@ -963,6 +978,8 @@ def create_new_order(order_selection, orders_available):
 
     start_date = new_order_start_date()
     end_date = new_order_end_date()
+    print(start_date)
+    print(end_date)
 
     
 def new_order_start_date():
@@ -978,7 +995,9 @@ def new_order_end_date():
         if validate_date(end_date_input):
             return end_date_input
 
-        
+
+
+
 
 
 def main():
