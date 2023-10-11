@@ -62,7 +62,7 @@ def create_header_title(header_text, header_theme=None,
         header_align = "center"
         background = "transparent"
     elif header_theme == "new_order":
-        header_colours = ['#B70600', '#FF6C66', 'white']
+        header_colours = ['blue', 'cyan', 'blue']
         header_align = "center"
         background = "yellow"
     else:
