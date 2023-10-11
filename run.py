@@ -192,16 +192,26 @@ def validate_input_string(input_prompt, input_from=None):
                 return input_string
 
 
-def validate_date(date_string):
+def validate_date(date_string, compare_date=None):
     try:
+        today = datetime.now()
         date_format = '%d/%m/%Y'
-        dateObject = datetime.strptime(date_string, date_format)
-        if dateObject:
-            return dateObject
+
+        date_from_string = datetime.strptime(date_string, date_format)
+        if date_from_string:
+            if today > date_from_string:
+                raise ValueError("Date cannot be before today")
+            if compare_date:
+                compare_date_from_string = datetime.strptime(compare_date,
+                                                             date_format)
+                if compare_date_from_string > date_from_string:
+                    raise ValueError("Collection cannot be before delivery")
+
+            return date_from_string
     except ValueError as e:
         cprint("----------------------------------------------", "red")
         cprint((f"ERROR: Date must be entered as D/M/YYYY ----"), "red")
-        cprint((f"{e}"), "red")
+        cprint((f"--- {e} --- "), "red")
         cprint("----------------------------------------------\n", "red")
         return False
     return True
@@ -977,11 +987,11 @@ def create_new_order(order_selection, orders_available):
     cprint("--- Use the format DD/MM/YYYY -", "cyan")
 
     start_date = new_order_start_date()
-    end_date = new_order_end_date()
-    print(start_date)
-    print(end_date)
+    end_date = new_order_end_date(start_date)
+    # print(start_date)
+    # print(end_date)
 
-    
+
 def new_order_start_date():
     while True:
         start_date_input = input("Enter a delivery date : ")
@@ -989,15 +999,11 @@ def new_order_start_date():
             return start_date_input
 
 
-def new_order_end_date():
+def new_order_end_date(start_date):
     while True:
         end_date_input = input("Enter a collection date : ")
-        if validate_date(end_date_input):
+        if validate_date(end_date_input, start_date):
             return end_date_input
-
-
-
-
 
 
 def main():
