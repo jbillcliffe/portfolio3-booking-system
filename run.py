@@ -4,6 +4,7 @@
 from cfonts import render, say
 from termcolor import colored, cprint
 from terminaltables import SingleTable
+from datetime import date
 import os
 import gspread
 from google.oauth2.service_account import Credentials
@@ -26,6 +27,7 @@ APPROVED_BLANKS = ["fname", "lname", "address", "postcode"]
 global selected_customer
 global selected_order
 global selected_item
+
 
 def terminal_clear():
     """
@@ -59,6 +61,10 @@ def create_header_title(header_text, header_theme=None,
         header_colours = ['white']
         header_align = "center"
         background = "transparent"
+    elif header_theme == "new_order":
+        header_colours = ['#B70600', '#FF6C66', 'white']
+        header_align = "center"
+        background = "yellow"
     else:
         header_colours = ['#2D8A60', '#6BCFA2', 'white']
 
@@ -114,6 +120,18 @@ def validate_choice(user_input, option_choices,
         if user_input not in option_choices:
             if (user_input == "M" or user_input == "m"):
                 main()
+            elif current_header == "no_head":
+                choice_display = ""
+                if len(user_input.strip()) == 0:
+                    choice_display = "no entry"
+                else:
+                    choice_display = user_input
+
+                cprint("--- ERROR ---------------------", "red")
+                cprint(f"Available choices are : "
+                       f"{', '.join(option_choices)}. "
+                       f"You chose {choice_display}.", "red")
+                return False
             else:
                 choice_display = user_input
                 # if input sent is blank when whitespace removed
@@ -125,13 +143,11 @@ def validate_choice(user_input, option_choices,
                                  f"You chose {choice_display}.")
 
     except ValueError as e:
-        if current_header:
-            terminal_clear()
-            create_header_title(current_header, current_header_theme)
-            cprint("----------------------------", "red")
-            cprint((f"ERROR: {e}"), "red")
-            cprint("----------------------------\n", "red")
-
+        terminal_clear()
+        create_header_title(current_header, current_header_theme)
+        cprint("----------------------------", "red")
+        cprint((f"ERROR: {e}"), "red")
+        cprint("----------------------------\n", "red")
         return False
     return True
 
@@ -412,7 +428,7 @@ def search_customer():
 
         if validate_choice(customer_search_input,
                            ["1", "2", "3", "4", "5", "6", "7"],
-                           "Search For Customer"):
+                           "Search Customer"):
             print("Enter 'B' to return to search criteria")
             if customer_search_input == "1":
                 search_sheet = "customers"
@@ -452,7 +468,6 @@ def search_customer():
                 search_num = validate_input_string("Enter item number : ",
                                                    "search_customer")
         if search_num:
-            found_customers = []
             search_data = search_worksheet(search_sheet,
                                            search_num,
                                            search_cols)
@@ -461,8 +476,9 @@ def search_customer():
             # Only one customer can be worked with at a time and it is
             # required to be manipulated in several areas
             global selected_customer
+
             terminal_clear()
-            
+
             if search_data:
                 if len(search_data) == 1:
                     selected_customer = Customer(search_data[0][0],
@@ -475,11 +491,11 @@ def search_customer():
                                         f"{selected_customer.lname}",
                                         "customer")
                     selected_customer.customer_display()
-                    break
+
                 else:
                     customer_select_number = 1
                     customer_select_options = []
-                    # "terminaltable" header row
+                    found_customers = []
                     table_data = [['', 'Customer ID', 'First Name',
                                    'Last Name', 'Address', 'Postcode']]
                     create_header_title("Found Customers")
@@ -502,23 +518,36 @@ def search_customer():
 
                     table = SingleTable(table_data, "Customers")
                     print(table.table)
-                    customer_select_input = input(
-                                    f"Choose an option from 1 "
-                                    f"to {len(customer_select_options)} : ")
+                    display_found_customers(customer_select_options,
+                                            found_customers)
+                break
 
-                    if validate_choice(customer_select_input,
-                                       customer_select_options):
-                        customer_choice_index = int(customer_select_input) - 1
-                        selected_customer = found_customers[
-                                customer_choice_index]
-
-                        terminal_clear()
-                        create_header_title(f"{selected_customer.fname} "
-                                            f"{selected_customer.lname}",
-                                            "customer")
-                        selected_customer.customer_display()
-                        break
     customer_options_menu()
+
+
+def display_found_customers(customer_select_options, found_customers):
+    while True:
+        global selected_customer
+
+        customer_select_input = input(
+                        f"Choose an option from 1 "
+                        f"to {len(customer_select_options)} : ")
+
+        if validate_choice(customer_select_input,
+                           customer_select_options,
+                           "no_head"):
+            customer_choice_index = int(customer_select_input) - 1
+            print(customer_choice_index)
+            selected_customer = found_customers[
+                    customer_choice_index]
+
+            terminal_clear()
+            create_header_title(f"{selected_customer.fname} "
+                                f"{selected_customer.lname}",
+                                "customer")
+            selected_customer.customer_display()
+            customer_options_menu()
+            break
 
 
 def customer_options_menu():
@@ -532,112 +561,117 @@ def customer_options_menu():
     4 = Change Address
     5 = Return To Menu
     """
-    customer_option_input = input("Choose Option : ")
+    while True:
+        customer_option_input = input("Choose Option : ")
 
-    if validate_choice(customer_option_input,
-                       ["1", "2", "3", "4", "5"],
-                       f"{selected_customer.fname} {selected_customer.lname}",
-                       "customer"):
-        print("Where multiple fields are present, "
-              "leave blank to exclude from update")
+        if validate_choice(customer_option_input,
+                           ["1", "2", "3", "4", "5"],
+                           "no_head"):
+            print("Where multiple fields are present, "
+                  "leave blank to exclude from update")
 
-        update_data = []
-        cells_to_update = []
+            update_data = []
+            cells_to_update = []
 
-        # Create New Order
-        if customer_option_input == "1":
-            items_list, types_list = search_worksheet("items",
-                                                      None,
-                                                      None,
-                                                      "get_items")
-            terminal_clear()
-            create_header_title(f"{selected_customer.fname} "
-                                f"{selected_customer.lname}",
-                                "customer")
-            selected_customer.customer_display()
-            add_new_order(items_list, types_list)
+            # Create New Order
+            if customer_option_input == "1":
+                items_list, types_list = search_worksheet("items",
+                                                          None,
+                                                          None,
+                                                          "get_items")
+                terminal_clear()
+                create_header_title(f"{selected_customer.fname} "
+                                    f"{selected_customer.lname}",
+                                    "customer")
+                selected_customer.customer_display()
+                add_new_order(items_list, types_list)
 
-        # Change Name
-        elif customer_option_input == "2":
-            search_sheet = "orders"
-            search_cols = [2]
-            search_num = selected_customer.customer_id
-            search_orders = search_worksheet(search_sheet,
-                                             search_num,
-                                             search_cols,
-                                             "view_orders")
-            view_customer_orders(search_orders)
+            # Change Name
+            elif customer_option_input == "2":
+                search_sheet = "orders"
+                search_cols = [2]
+                search_num = selected_customer.customer_id
+                search_orders = search_worksheet(search_sheet,
+                                                 search_num,
+                                                 search_cols,
+                                                 "view_orders")
+                view_customer_orders(search_orders)
 
-        elif customer_option_input == "3":
-            fname_input = (
-                validate_input_string("Enter customer first name : ", "fname"))
-            lname_input = (
-                validate_input_string("Enter customer surname : ", "lname"))
+            elif customer_option_input == "3":
+                fname_input = (
+                    validate_input_string("Enter customer first name : ",
+                                          "fname"))
+                lname_input = (
+                    validate_input_string("Enter customer surname : ",
+                                          "lname"))
 
-            if fname_input == "EmptyOK" and lname_input == "EmptyOK":
-                selected_customer.customer_display("no_update_made")
+                if fname_input == "EmptyOK" and lname_input == "EmptyOK":
+                    selected_customer.customer_display("no_update_made")
 
-            elif fname_input == "EmptyOK" and lname_input != "EmptyOK":
-                update_data = [lname_input]
-                cells_to_update = [3]
-                selected_customer.lname = lname_input
+                elif fname_input == "EmptyOK" and lname_input != "EmptyOK":
+                    update_data = [lname_input]
+                    cells_to_update = [3]
+                    selected_customer.lname = lname_input
 
-            elif fname_input != "EmptyOK" and lname_input == "EmptyOK":
-                update_data = [fname_input]
-                selected_customer.fname = fname_input
-                cells_to_update = [2]
+                elif fname_input != "EmptyOK" and lname_input == "EmptyOK":
+                    update_data = [fname_input]
+                    selected_customer.fname = fname_input
+                    cells_to_update = [2]
 
-            else:
-                update_data = [fname_input, lname_input]
-                cells_to_update = [2, 3]
-                selected_customer.fname = fname_input
-                selected_customer.lname = lname_input
+                else:
+                    update_data = [fname_input, lname_input]
+                    cells_to_update = [2, 3]
+                    selected_customer.fname = fname_input
+                    selected_customer.lname = lname_input
 
-        # Change Address
-        elif customer_option_input == "4":
+            # Change Address
+            elif customer_option_input == "4":
 
-            address_input = (
-                validate_input_string("Enter first line of address : ",
-                                      "address"))
-            postcode_input = (
-                validate_input_string("Enter customer postcode : ",
-                                      "postcode"))
+                address_input = (
+                    validate_input_string("Enter first line of address : ",
+                                          "address"))
+                postcode_input = (
+                    validate_input_string("Enter customer postcode : ",
+                                          "postcode"))
 
-            if address_input == "EmptyOK" and postcode_input == "EmptyOK":
-                selected_customer.customer_display("no_update_made")
+                if address_input == "EmptyOK" and postcode_input == "EmptyOK":
+                    selected_customer.customer_display("no_update_made")
 
-            elif address_input == "EmptyOK" and postcode_input != "EmptyOK":
-                update_data = [postcode_input]
-                cells_to_update = [5]
-                selected_customer.postcode = postcode_input
+                elif (address_input == "EmptyOK" and
+                        postcode_input != "EmptyOK"):
 
-            elif address_input != "EmptyOK" and postcode_input == "EmptyOK":
-                update_data = [address_input]
-                cells_to_update = [4]
-                selected_customer.address = address_input
+                    update_data = [postcode_input]
+                    cells_to_update = [5]
+                    selected_customer.postcode = postcode_input
 
-            else:
-                update_data = [address_input, postcode_input]
-                cells_to_update = [4, 5]
-                selected_customer.address = address_input
-                selected_customer.postcode = postcode_input
+                elif (address_input != "EmptyOK" and
+                      postcode_input == "EmptyOK"):
+                    update_data = [address_input]
+                    cells_to_update = [4]
+                    selected_customer.address = address_input
 
-        # Return to menu
-        elif customer_option_input == "5":
-            main()
+                else:
+                    update_data = [address_input, postcode_input]
+                    cells_to_update = [4, 5]
+                    selected_customer.address = address_input
+                    selected_customer.postcode = postcode_input
 
-        # Send data to be updated
-        if len(update_data) > 0:
-            update_selected_worksheet(selected_customer.customer_id,
-                                      update_data,
-                                      cells_to_update,
-                                      "customers")
-            terminal_clear()
-            create_header_title(f"{selected_customer.fname} "
-                                f"{selected_customer.lname}",
-                                "customer")
-            selected_customer.customer_display("from_update")
-            customer_options_menu()
+            # Return to menu
+            elif customer_option_input == "5":
+                main()
+
+            # Send data to be updated
+            if len(update_data) > 0:
+                update_selected_worksheet(selected_customer.customer_id,
+                                          update_data,
+                                          cells_to_update,
+                                          "customers")
+                terminal_clear()
+                create_header_title(f"{selected_customer.fname} "
+                                    f"{selected_customer.lname}",
+                                    "customer")
+                selected_customer.customer_display("from_update")
+                customer_options_menu()
 
 
 def view_customer_orders(order_data):
@@ -695,7 +729,8 @@ def view_customer_orders(order_data):
                             f"to {len(order_select_options)} : ")
 
             if validate_choice(order_select_input,
-                               order_select_options):
+                               order_select_options,
+                               "no_head"):
                 order_choice_index = int(order_select_input) - 1
                 selected_order = found_orders[order_choice_index]
                 selected_item = found_items[order_choice_index]
@@ -833,6 +868,9 @@ def add_new_order(items_list, types_list):
     type_header_list = []
     type_value_list = []
     type_list_data = []
+    option_counter = 1
+    item_table_data = []
+
     for _a in types_list:
         type_header_list.append(str(len(type_header_list)+1).center(12))
     for b in types_list:
@@ -841,59 +879,106 @@ def add_new_order(items_list, types_list):
     type_list_data.append(list(type_header_list))
     type_list_data.append(list(type_value_list))
 
-    item_table_data = []
     cprint("--- Choose Item To Order ------", "yellow")
 
     type_table_data = [list(type_header_list), list(type_value_list)]
 
     type_table = SingleTable(type_table_data)
     print(type_table.table)
-    order_type_select = input("Choose type of item to order : ")
 
-    if validate_choice(int(order_type_select),
-                       [*range(1, type_choices_end, 1)]):
-        type_chosen = types_list[(int(order_type_select)-1)]
-        item_counter = 1
-        for x in items_list:
-            if x.item_type == type_chosen:
-                if len(item_table_data) > 0:
-                    
-                    for y in item_table_data:
-                        print(y[1])
-                        print(y[4])
-                        print(type(y[1]))
-                        print(type(y[4]))
-                        if y[1] == x.item_name:
-                            y[4] += 1
-                        else:
-                            item_table_data.append([item_counter,
-                                                    x.item_name,
-                                                    x.item_start_cost,
-                                                    x.item_week_cost,
-                                                    1])
-                            item_counter += 1
-                else:
-                    item_table_data.append([item_counter,
-                                            x.item_name,
-                                            x.item_start_cost,
-                                            x.item_week_cost,
-                                            1])
-                    item_counter += 1
-        """
-        for z in item_table_data:
+    while True:
+        order_type_select = input("Choose type of item to order : ")
+        order_type_range_ints = [*range(1, type_choices_end, 1)]
+        order_type_strings = map(str, order_type_range_ints)
+        order_type_range = (list(order_type_strings))
 
-            count = int(z[4])
-            if count <= 0:
-                count = colored(count, "red")
-            elif count > 0 and count < 3:
-                count = colored(count, "yellow")
-            else:
-                count = colored(count, "green")
-        """
-        item_table = SingleTable(item_table_data)
-        item_table.inner_row_border = False
-        item_table.inner_heading_row_border = False
-        print(item_table.table)
+        if validate_choice(order_type_select,
+                           order_type_range,
+                           "no_head"):
+
+            type_chosen = types_list[(int(order_type_select)-1)]
+
+            items_matched = []
+            for c in items_list:
+                if c.item_type == type_chosen:
+                    items_matched.append(c)
+
+            unique_items = set(d.item_name for d in items_matched)
+
+            option_counter = 1
+            item_table_data = [['', 'Item', 'Initial Cost',
+                                    'Weekly Cost', 'Total']]
+            for e in unique_items:
+                counter = 0
+                start_cost = ""
+                week_cost = ""
+
+                for f in items_matched:
+                    if f.item_name == e:
+                        counter += 1
+                        start_cost = f.item_start_cost
+                        week_cost = f.item_week_cost
+                item_table_data.append([option_counter,
+                                        e,
+                                        start_cost,
+                                        week_cost,
+                                        counter])
+                option_counter += 1
+
+            order_options_table = SingleTable(item_table_data)
+            order_options_table.inner_row_border = True
+            print(order_options_table.table)
+
+            order_option_chooser(item_table_data, option_counter)
+            break
+
+
+def order_option_chooser(item_table_data, option_counter):
+    while True:
+        order_item_select = input("Choose item to order : ")
+        order_item_range = [*range(1, option_counter, 1)]
+        range_to_string = map(str, order_item_range)
+        item_string_range = (list(range_to_string))
+
+        if validate_choice(order_item_select,
+                           item_string_range,
+                           "no_head"):
+            order_option_selected = item_table_data[
+                int(order_item_select)]
+            create_new_order(order_option_selected, item_table_data)
+            break
+
+
+def create_new_order(order_selection, orders_available):
+    terminal_clear()
+    create_header_title(f"{selected_customer.fname} "
+                        f"{selected_customer.lname} - New Order",
+                        "new_order")
+    cprint("-------------------------------", "green")
+    cprint(f"--- Item : {order_selection[1]}", "green")
+    cprint(f"--- Initial Cost : {order_selection[2]}", "green")
+    cprint(f"--- Weekly Cost : {order_selection[3]}", "green")
+    cprint("-------------------------------\n", "green")
+    cprint("--- Use the format DD/MM/YYYY -", "cyan")
+
+    start_date = new_order_start_date()
+    end_date = new_order_end_date()
+
+    
+def new_order_start_date():
+    while True:
+        start_date_input = input("Enter a delivery date : ")
+        if validate_date(start_date_input):
+            return start_date_input
+
+
+def new_order_end_date():
+    while True:
+        end_date_input = input("Enter a collection date : ")
+        if validate_date(end_date_input):
+            return end_date_input
+
+        
 
 
 def main():
