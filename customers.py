@@ -72,23 +72,23 @@ class Customer:
         print(table.table)
 
         if where_from == "from_update":
-            cprint("-------------------------------", "green")
-            cprint(f"--- {self.customer_id} "
-                   f"Updated -----------", "green")
-            cprint("-------------------------------", "green")
+            cprint("{:-^80}".format(""), "green")
+            cprint("{:-^80}".format(f" {self.customer_id} Updated"), "green")
+            cprint("{:-^80}".format(""), "green")
         elif where_from == "no_update_made":
-            cprint("-------------------------------", "yellow")
-            cprint("--- No Update Required --------", "yellow")
-            cprint("-------------------------------", "yellow")
+            cprint("{:-^80}".format(""), "yellow")
+            cprint("{:-^80}".format(" No Update Required "), "yellow")
+            cprint("{:-^80}".format(""), "yellow")
         elif where_from == "no_orders_found":
-            cprint("-------------------------------", "red")
-            cprint("--- No Orders Found -----------", "red")
-            cprint("-------------------------------", "red")
+            cprint("{:-^80}".format(""), "red")
+            cprint("{:-^80}".format(" No Orders Found "), "red")
+            cprint("{:-^80}".format(""), "red")
         elif where_from == "view_orders":
-            cprint("--- Orders --------------------", "yellow")
+            cprint("{:-^80}".format(" Orders "), "yellow")
         elif where_from == "selected_order":
-            cprint(f"--- Order : {order_id} "
-                   f"-----------", "yellow")
+            cprint("{:-^80}".format(
+                   f" {order_id} "
+                   "----------------------------------------------"), "yellow")
 
         if where_from != "view_orders" and where_from != "selected_order":
             return True
