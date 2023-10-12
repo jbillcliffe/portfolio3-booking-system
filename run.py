@@ -7,6 +7,7 @@ from terminaltables import SingleTable
 from datetime import datetime
 from datetime import date
 import os
+import math
 import gspread
 from google.oauth2.service_account import Credentials
 from customers import Customer
@@ -1140,7 +1141,7 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
     multiline_display_printer([
             "{:-^80}".format(""),
             "{:-^80}".format(f" Available List Of : {order_selection[1]} "),
-            "{:-^80}".format("")], "green")
+            "{:-^80}".format("")], colour="green")
     item_choice_table = SingleTable(available_items_list)
     item_choice_table.inner_row_border = True
     print(item_choice_table.table)
@@ -1159,9 +1160,28 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
             if x.item_id == chosen_id:
                 selected_item = x
                 break
-        print(selected_item.item_id)
         # [x for x in text if x.isdigit()]
         return selected_item, full_matched_list
+
+def new_order_payment(start_date, end_date):
+
+    global selected_item
+
+    start = datetime.strptime(start_date, '%d/%m/%Y')
+    end = datetime.strptime(end_date, '%d/%m/%Y')
+    date_diff = end - start
+    days = date_diff.days
+    weeks = days/7
+    weeks_up = math.ceil(weeks)
+    weeks_to_pay = weeks_up - 1
+    initial_week = selected_item.item_start_cost
+    total_remaining_weeks = (weeks_to_pay - 1) * float(selected_item.item_week_cost.strip("£"))
+    print(days)
+    print(weeks)
+    print(weeks_up)
+    print(weeks_to_pay)
+    print(initial_week)
+    print(total_remaining_weeks)
 
 
 def create_new_order(order_selection, orders_available, full_matched_list):
@@ -1172,7 +1192,7 @@ def create_new_order(order_selection, orders_available, full_matched_list):
     get_item, get_alternatives = check_chosen_despatch_dates(
                                 start_date, end_date,
                                 full_matched_list, order_selection)
-    take_payment = new_order_payment()
+    take_payment = new_order_payment(start_date, end_date)
 
 
 def main():
