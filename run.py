@@ -83,7 +83,7 @@ def create_header_title(header_text, header_theme=None,
                     space=False,
                     max_length=0,
                     background=background)
- 
+
     print(output)
     print(blanking_space)
 
@@ -516,6 +516,7 @@ def search_customer():
                            ["1", "2", "3", "4", "5", "6", "7"],
                            "Search Customer"):
             print("Enter 'B' to return to search criteria")
+
             if customer_search_input == "1":
                 search_sheet = "customers"
                 search_cols = [2, 3]
@@ -523,12 +524,14 @@ def search_customer():
                                                    "name or surname : ",
                                                    "search_customer",
                                                    choice_input="search_name")
+
             elif customer_search_input == "2":
                 search_sheet = "customers"
                 search_cols = [4]
                 search_num = validate_input_string(
                     "Enter customer address : ", "search_customer",
                     choice_input="search_address")
+
             elif customer_search_input == "3":
                 search_sheet = "customers"
                 search_cols = [5]
@@ -539,27 +542,31 @@ def search_customer():
             elif customer_search_input == "4":
                 search_sheet = "customers"
                 search_cols = [1]
-                search_num = validate_input_string("Enter customer number : ",
-                                                   "search_customer",
-                                                   choice_input="search_number")
+                search_num = validate_input_string(
+                    "Enter customer number : ", "search_customer",
+                    choice_input="search_number")
+
             elif customer_search_input == "5":
                 search_sheet = "orders"
                 search_cols = [1]
                 search_num = validate_input_string("Enter order number : ",
                                                    "search_customer",
                                                    choice_input="search_order")
+
             elif customer_search_input == "6":
                 search_sheet = "invoices"
                 search_cols = [1]
                 search_num = validate_input_string(
                     "Enter invoice number : ", "search_customer",
                     choice_input="search_invoice")
+
             elif customer_search_input == "7":
                 search_sheet = "orders"
                 search_cols = [2]
                 search_num = validate_input_string("Enter item number : ",
                                                    "search_customer",
                                                    choice_input="search_item")
+
         if search_num:
             search_data = search_worksheet(search_sheet,
                                            search_num,
@@ -612,7 +619,7 @@ def search_customer():
                     print(table.table)
                     display_found_customers(customer_select_options,
                                             found_customers)
-       
+
         break
     customer_options_menu()
 
@@ -687,7 +694,7 @@ def customer_options_menu():
                                                  search_cols,
                                                  "view_orders")
                 view_customer_orders(search_orders)
-            
+
             elif customer_option_input == "3":
                 fname_input = (
                     validate_input_string("Enter customer first name : ",
@@ -1021,11 +1028,13 @@ def add_new_order(items_list, types_list):
                                         week_cost,
                                         counter])
                 option_counter += 1
-            order_option_chooser(item_table_data, option_counter)
+            order_option_chooser(item_table_data,
+                                 option_counter,
+                                 items_matched)
             break
 
 
-def order_option_chooser(item_table_data, option_counter):
+def order_option_chooser(item_table_data, option_counter, full_matched_list):
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}")
     selected_customer.customer_display()
@@ -1046,7 +1055,9 @@ def order_option_chooser(item_table_data, option_counter):
                            "no_head"):
             order_option_selected = item_table_data[
                 int(order_item_select)]
-            create_new_order(order_option_selected, item_table_data)
+            create_new_order(order_option_selected,
+                             item_table_data,
+                             full_matched_list)
             break
 
 
@@ -1056,13 +1067,11 @@ def display_order_date_choose(order_selection):
                         f"{selected_customer.lname}",
                         "new_order")
     multiline_display_printer([
-        "{:-^80}".format(""),
         "{:-^80}".format(f" Item : {order_selection[1]} "),
         "{:-^80}".format(f" Initial Cost : {order_selection[2]} "),
         "{:-^80}".format(f" Weekly Cost : {order_selection[3]} "),
         "{:-^80}".format(""),
-        "{:-^80}".format(" CHOOSE ORDER DATES "),
-        "{:-^80}".format("")], colour="green")
+        "{:-^80}".format(" CHOOSE ORDER DATES ")], colour="green")
     multiline_display_printer([
         "{:-^80}".format(" Use the format DD/MM/YYYY, "
                          "DD/MM can be 1 or 2 digits "),
@@ -1084,52 +1093,72 @@ def new_order_end_date(order_selection, start_date):
             return end_date_input
 
 
-def date_comparison(start_date, end_date):
-    # d1 = (3, 28)
-    # d2 = (3, 31)
-    # d3 = (4, 2)
-    # start = date(start_date)
-    # if d1 < d2 < d3:
-    #     print("BETWEEN!")
-    # else:
-    #     print("NOT!")
-    print("Hello")
-
-
-def create_new_order(order_selection, orders_available):
+def check_chosen_despatch_dates(start_date_string, end_date_string,
+                                full_matched_list, order_selection):
     """
     # Search needs to happen.
-    - Date between dates. If delivery or     collection is between = NO
+    - Date between dates. If delivery or collection is between = NO
     - This means that this order cannot interfere with an order another
     customer has for the same item.
     - But it can allow a booking to happen on the same item as long as
     it does not interfere with those dates
     """
+    start = datetime.strptime(start_date_string, '%d/%m/%Y')
+    end = datetime.strptime(end_date_string, '%d/%m/%Y')
+
+    available_items_list = [['', 'ID', 'Delivery Dates',
+                             'Collection Dates', 'Income']]
+    # full_matched_list is for all items matching the type : eg. Scooter
+    # check dates against matched data
+    # 5 is deliver 6 is collect 7 is repair
+    item_counter = 1
+    for x in full_matched_list:
+        # item_name list index and in selected item for order
+        if x.item_name == order_selection[1]:
+            #  if true, on any of these, the item is not available
+            if x.item_deliver and x.item_collect:
+                if (datetime.strptime(x.item_deliver, '%Y/%m/%d') <= start <=
+                        datetime.strptime(x.item_collect, '%Y/%m/%d')):
+                    continue
+
+                if (datetime.strptime(x.item_deliver, '%Y/%m/%d') <= end <=
+                        datetime.strptime(x.item_collect, '%Y/%m/%d')):
+                    continue
+            if x.item_repair:
+                continue
+
+            available_item_object = [item_counter, x.item_id,
+                                     x.item_deliver, x.item_collect,
+                                     x.item_income]
+            available_items_list.append(available_item_object)
+            item_counter += 1
+    create_header_title(f"{selected_customer.fname} "
+                        f"{selected_customer.lname}")
+    selected_customer.customer_display()
+    multiline_display_printer([
+            "{:-^80}".format(""),
+            "{:-^80}".format(f" Available List Of : {order_selection[1]} "),
+            "{:-^80}".format("")], "green")
+    item_choice_table = SingleTable(available_items_list)
+    item_choice_table.inner_row_border = True
+    print(item_choice_table.table)
+
+
+def create_new_order(order_selection, orders_available, full_matched_list):
+
     display_order_date_choose(order_selection)
     start_date = new_order_start_date(order_selection)
     end_date = new_order_end_date(order_selection, start_date)
-    # validate_dates = date_comparison(start_date, end_date)
-    to_date_start = datetime.strptime(start_date, '%d/%m/%Y')
-    to_date_end = datetime.strptime(end_date, '%d/%m/%Y')
-    print(start_date)
-    print(type(start_date))
-    print(datetime.strptime(start_date, '%d/%m/%Y'))
-    print(to_date_start)
-    print(end_date)
-    print(type(end_date))
-    print(datetime.strptime(end_date, '%d/%m/%Y'))
-    print(to_date_end)
+    check_chosen_despatch_dates(start_date, end_date,
+                                full_matched_list, order_selection)
 
-    print(to_date_start.day)
-    print(to_date_start.month)
-    print(to_date_start.year)
+
 
 def main():
     """
     INITIATE THE PROGRAM.
     - Display the header.
-  
-  - Load the main menu, to provide the first options
+    - Load the main menu, to provide the first options
     """
     create_header_title("Renterprise")
     main_menu_init()
