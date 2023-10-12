@@ -5,6 +5,7 @@ from cfonts import render, say
 from termcolor import colored, cprint
 from terminaltables import SingleTable
 from datetime import datetime
+from datetime import date
 import os
 import gspread
 from google.oauth2.service_account import Credentials
@@ -1083,6 +1084,18 @@ def new_order_end_date(order_selection, start_date):
             return end_date_input
 
 
+def date_comparison(start_date, end_date):
+    # d1 = (3, 28)
+    # d2 = (3, 31)
+    # d3 = (4, 2)
+    # start = date(start_date)
+    # if d1 < d2 < d3:
+    #     print("BETWEEN!")
+    # else:
+    #     print("NOT!")
+    print("Hello")
+
+
 def create_new_order(order_selection, orders_available):
     """
     # Search needs to happen.
@@ -1092,11 +1105,24 @@ def create_new_order(order_selection, orders_available):
     - But it can allow a booking to happen on the same item as long as
     it does not interfere with those dates
     """
-
     display_order_date_choose(order_selection)
     start_date = new_order_start_date(order_selection)
     end_date = new_order_end_date(order_selection, start_date)
+    # validate_dates = date_comparison(start_date, end_date)
+    to_date_start = datetime.strptime(start_date, '%d/%m/%Y')
+    to_date_end = datetime.strptime(end_date, '%d/%m/%Y')
+    print(start_date)
+    print(type(start_date))
+    print(datetime.strptime(start_date, '%d/%m/%Y'))
+    print(to_date_start)
+    print(end_date)
+    print(type(end_date))
+    print(datetime.strptime(end_date, '%d/%m/%Y'))
+    print(to_date_end)
 
+    print(to_date_start.day)
+    print(to_date_start.month)
+    print(to_date_start.year)
 
 def main():
     """
