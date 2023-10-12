@@ -1103,6 +1103,8 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
     - But it can allow a booking to happen on the same item as long as
     it does not interfere with those dates
     """
+    global selected_item
+
     start = datetime.strptime(start_date_string, '%d/%m/%Y')
     end = datetime.strptime(end_date_string, '%d/%m/%Y')
 
@@ -1143,15 +1145,34 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
     item_choice_table.inner_row_border = True
     print(item_choice_table.table)
 
+    item_select_input = input("Choose item to order : ")
+    item_range = [*range(1, item_counter, 1)]
+    range_to_string = map(str, item_range)
+    item_string_range = (list(range_to_string))
+
+    if validate_choice(item_select_input,
+                       item_string_range,
+                       "no_head"):
+        # selected_item = x.item_id for d in full_matched_list
+        chosen_id = available_items_list[(item_counter-1)][1]
+        for x in full_matched_list:
+            if x.item_id == chosen_id:
+                selected_item = x
+                break
+        print(selected_item.item_id)
+        # [x for x in text if x.isdigit()]
+        return selected_item, full_matched_list
+
 
 def create_new_order(order_selection, orders_available, full_matched_list):
 
     display_order_date_choose(order_selection)
     start_date = new_order_start_date(order_selection)
     end_date = new_order_end_date(order_selection, start_date)
-    check_chosen_despatch_dates(start_date, end_date,
+    get_item, get_alternatives = check_chosen_despatch_dates(
+                                start_date, end_date,
                                 full_matched_list, order_selection)
-
+    take_payment = new_order_payment()
 
 
 def main():
