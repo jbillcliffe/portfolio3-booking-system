@@ -50,7 +50,11 @@ def create_header_title(header_text, header_theme=None,
     font and text and insert it into the console.
     - Although only one line, it is put into it's
     own function due to it's repetition
+    - Always starts by clearing the terminal as it is
+    the top element in the terminal window
     """
+    terminal_clear()
+
     if header_theme == "red":
         header_colours = ['#B70600', '#FF6C66', 'white']
     elif header_theme == "customer":
@@ -93,7 +97,7 @@ def main_menu_init():
                                    "2. Search for an existing customer"])
         main_menu_input = input("Choice : ")
         if validate_choice(main_menu_input, ["1", "2"], "Renterprise"):
-            terminal_clear()
+            # terminal_clear()
             if main_menu_input == "1":
                 create_header_title("Create Customer")
                 create_new_customer()
@@ -143,7 +147,7 @@ def validate_choice(user_input, option_choices,
                                  f"You chose {choice_display}.")
 
     except ValueError as e:
-        terminal_clear()
+        # terminal_clear()
         create_header_title(current_header, current_header_theme)
         cprint("----------------------------", "red")
         cprint((f"ERROR: {e}"), "red")
@@ -185,7 +189,7 @@ def validate_input_string(input_prompt, input_from=None):
         if len(input_string.strip()) > 0:
             if (input_from == "search_customer" and
                     (input_string == "B" or input_string == "b")):
-                terminal_clear()
+                # terminal_clear()
                 create_header_title("Search Customer")
                 return search_customer()
             else:
@@ -300,7 +304,7 @@ def search_worksheet(search_this, search_value=None,
                     search_results.append(customer_row)
 
         if len(search_results) == 0:
-            terminal_clear()
+            # terminal_clear()
             create_header_title("Search Customer")
             cprint("----------------------------", "red")
             cprint("ERROR: No Customer Found.", "red")
@@ -331,7 +335,8 @@ def search_worksheet(search_this, search_value=None,
                 order_result.append([order_object, item_object])
 
             if len(order_result) == 0:
-                selected_customer.customer_display("no_orders_found")
+                selected_customer.customer_display(
+                        where_from="no_orders_found")
             else:
                 return order_result
     elif search_mod == "get_items":
@@ -502,7 +507,7 @@ def search_customer():
             # required to be manipulated in several areas
             global selected_customer
 
-            terminal_clear()
+            # terminal_clear()
 
             if search_data:
                 if len(search_data) == 1:
@@ -566,7 +571,7 @@ def display_found_customers(customer_select_options, found_customers):
             selected_customer = found_customers[
                     customer_choice_index]
 
-            terminal_clear()
+            # terminal_clear()
             create_header_title(f"{selected_customer.fname} "
                                 f"{selected_customer.lname}",
                                 "customer")
@@ -604,12 +609,13 @@ def customer_options_menu():
                                                           None,
                                                           None,
                                                           "get_items")
-                terminal_clear()
+                # terminal_clear()
                 create_header_title(f"{selected_customer.fname} "
                                     f"{selected_customer.lname}",
                                     "customer")
                 selected_customer.customer_display()
                 add_new_order(items_list, types_list)
+                break
 
             # Change Name
             elif customer_option_input == "2":
@@ -621,6 +627,7 @@ def customer_options_menu():
                                                  search_cols,
                                                  "view_orders")
                 view_customer_orders(search_orders)
+                break
 
             elif customer_option_input == "3":
                 fname_input = (
@@ -631,7 +638,13 @@ def customer_options_menu():
                                           "lname"))
 
                 if fname_input == "EmptyOK" and lname_input == "EmptyOK":
-                    selected_customer.customer_display("no_update_made")
+                    # terminal_clear()
+                    create_header_title(f"{selected_customer.fname} "
+                                        f"{selected_customer.lname}",
+                                        "customer")
+                    selected_customer.customer_display(
+                            where_from="no_update_made")
+                    break
 
                 elif fname_input == "EmptyOK" and lname_input != "EmptyOK":
                     update_data = [lname_input]
@@ -648,6 +661,7 @@ def customer_options_menu():
                     cells_to_update = [2, 3]
                     selected_customer.fname = fname_input
                     selected_customer.lname = lname_input
+                break
 
             # Change Address
             elif customer_option_input == "4":
@@ -660,11 +674,15 @@ def customer_options_menu():
                                           "postcode"))
 
                 if address_input == "EmptyOK" and postcode_input == "EmptyOK":
-                    selected_customer.customer_display("no_update_made")
+                    create_header_title(f"{selected_customer.fname} "
+                                        f"{selected_customer.lname}",
+                                        "customer")
+                    selected_customer.customer_display(
+                            where_from="no_update_made")
+                    break
 
                 elif (address_input == "EmptyOK" and
                         postcode_input != "EmptyOK"):
-
                     update_data = [postcode_input]
                     cells_to_update = [5]
                     selected_customer.postcode = postcode_input
@@ -684,6 +702,7 @@ def customer_options_menu():
             # Return to menu
             elif customer_option_input == "5":
                 main()
+                break
 
             # Send data to be updated
             if len(update_data) > 0:
@@ -691,12 +710,13 @@ def customer_options_menu():
                                           update_data,
                                           cells_to_update,
                                           "customers")
-                terminal_clear()
+                # terminal_clear()
                 create_header_title(f"{selected_customer.fname} "
                                     f"{selected_customer.lname}",
                                     "customer")
-                selected_customer.customer_display("from_update")
+                selected_customer.customer_display(where_from="from_update")
                 customer_options_menu()
+                break
 
 
 def view_customer_orders(order_data):
@@ -709,7 +729,7 @@ def view_customer_orders(order_data):
     #
     global selected_order
     global selected_item
-    terminal_clear()
+    # terminal_clear()
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}",
                         "customer")
@@ -729,7 +749,7 @@ def view_customer_orders(order_data):
         else:
             order_select_number = 1
             order_select_options = []
-            selected_customer.customer_display("view_orders")
+            selected_customer.customer_display(where_from="view_orders")
 
             table_data = [['', 'Order ID', 'Item',
                            'Start Date', 'End Date']]
@@ -761,7 +781,7 @@ def view_customer_orders(order_data):
                 selected_item = found_items[order_choice_index]
 
                 # Here need to move to order display
-                terminal_clear()
+                # terminal_clear()
                 create_header_title(f"{selected_customer.fname} "
                                     f"{selected_customer.lname}",
                                     "customer")
@@ -819,7 +839,7 @@ def order_options_menu():
                 validate_input_string("Enter customer surname : ", "lname"))
 
             if fname_input == "EmptyOK" and lname_input == "EmptyOK":
-                selected_customer.customer_display("no_update_made")
+                selected_customer.customer_display(where_from="no_update_made")
 
             elif fname_input == "EmptyOK" and lname_input != "EmptyOK":
                 update_data = [lname_input]
@@ -849,7 +869,7 @@ def order_options_menu():
                                       "postcode"))
 
             if address_input == "EmptyOK" and postcode_input == "EmptyOK":
-                selected_customer.customer_display("no_update_made")
+                selected_customer.customer_display(where_from="no_update_made")
 
             elif address_input == "EmptyOK" and postcode_input != "EmptyOK":
                 update_data = [postcode_input]
@@ -868,7 +888,7 @@ def order_options_menu():
                 selected_customer.postcode = postcode_input
             """
             print("Customer Options")
-            terminal_clear()
+            # terminal_clear()
             create_header_title(f"{selected_customer.fname} "
                                 f"{selected_customer.lname}",
                                 "customer")
@@ -884,7 +904,7 @@ def order_options_menu():
                                       update_data,
                                       cells_to_update,
                                       "customers")
-            selected_customer.customer_display("from_update")
+            selected_customer.customer_display(where_from="from_update")
         """
 
 
@@ -975,7 +995,7 @@ def order_option_chooser(item_table_data, option_counter):
 
 
 def create_new_order(order_selection, orders_available):
-    terminal_clear()
+    # terminal_clear()
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname} - New Order",
                         "new_order")
@@ -1012,7 +1032,7 @@ def main():
     - Display the header.
     - Load the main menu, to provide the first options
     """
-    terminal_clear()
+    # terminal_clear()
     create_header_title("Renterprise")
     main_menu_init()
 
