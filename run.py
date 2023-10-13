@@ -1038,7 +1038,7 @@ def add_new_order(items_list, types_list):
                                         week_cost,
                                         counter])
                 option_counter += 1
-            
+
             return order_option_chooser(item_table_data,
                                         option_counter,
                                         items_matched)
@@ -1127,14 +1127,18 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
         # item_name list index and in selected item for order
         if x.item_name == order_selection[1]:
             #  if true, on any of these, the item is not available
-            if x.item_deliver and x.item_collect:
-                if (datetime.strptime(x.item_deliver, '%Y/%m/%d') <= start <=
-                        datetime.strptime(x.item_collect, '%Y/%m/%d')):
-                    continue
 
-                if (datetime.strptime(x.item_deliver, '%Y/%m/%d') <= end <=
-                        datetime.strptime(x.item_collect, '%Y/%m/%d')):
-                    continue
+            if x.item_deliver and x.item_collect:
+                deliveries = x.item_deliver.split(", ")
+                collections = x.item_deliver.split(", ")
+                for this_del, this_col in zip(deliveries, collections):
+                    if (datetime.strptime(this_del, '%Y/%m/%d') <= start <=
+                            datetime.strptime(this_col, '%Y/%m/%d')):
+                        continue
+
+                    if (datetime.strptime(this_del, '%Y/%m/%d') <= end <=
+                            datetime.strptime(this_col, '%Y/%m/%d')):
+                        continue
             if x.item_repair:
                 continue
 
