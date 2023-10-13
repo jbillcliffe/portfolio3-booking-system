@@ -201,7 +201,7 @@ def validate_input_string(input_prompt, input_from=None,
                 print("Choose Option : "+choice_input)
                 print("Where multiple fields are present, "
                       "leave blank to exclude from update")
-
+                
                 if input_from == "fname":
                     cprint("Enter customer first name : No Update",
                            "green")
@@ -1038,10 +1038,10 @@ def add_new_order(items_list, types_list):
                                         week_cost,
                                         counter])
                 option_counter += 1
-            order_option_chooser(item_table_data,
-                                 option_counter,
-                                 items_matched)
-            break
+            
+            return order_option_chooser(item_table_data,
+                                        option_counter,
+                                        items_matched)
 
 
 def order_option_chooser(item_table_data, option_counter, full_matched_list):
@@ -1065,10 +1065,9 @@ def order_option_chooser(item_table_data, option_counter, full_matched_list):
                            "no_head"):
             order_option_selected = item_table_data[
                 int(order_item_select)]
-            create_new_order(order_option_selected,
-                             item_table_data,
-                             full_matched_list)
-            break
+            return create_new_order(order_option_selected,
+                                    item_table_data,
+                                    full_matched_list)
 
 
 def display_order_date_choose(order_selection):
@@ -1201,7 +1200,8 @@ def new_order_payment(start_date, end_date):
     return [initial_week_charge, total_remaining_weeks, total_overall]
     
 
-def finalise_order_and_payment(get_item, start_date, end_date, payment_amounts):
+def finalise_order_and_payment(get_item, start_date,
+                               end_date, payment_amounts):
     """
     Take all collected values and display for confirmation
     - Present to the user to confirm order.
@@ -1219,13 +1219,16 @@ def create_new_order(order_selection, orders_available, full_matched_list):
     start_date = new_order_start_date(order_selection)
     end_date = new_order_end_date(order_selection, start_date)
     get_item, get_alternatives = check_chosen_despatch_dates(
-                                start_date, end_date,
-                                full_matched_list, order_selection)
-    payment_amounts = new_order_payment(start_date, end_date)
-    print(payment_amounts)
+                            start_date, end_date,
+                            full_matched_list, order_selection)
+    initial_cost, total_weeks_cost, total_cost = (
+                                new_order_payment(start_date, end_date))
+    print(initial_cost)
+    print(total_weeks_cost)
+    print(total_cost)
     print(start_date)
     print(end_date)
-    print(get_item)
+    print(get_item.item_id)
     """
     take_payment = finalise_order_and_payment(get_item,
                                               start_date,
