@@ -62,17 +62,26 @@ def create_header_title(header_text, header_theme=None,
 
     if header_theme == "red":
         header_colours = ["#B70600", "#FF6C66", "white"]
+
     elif header_theme == "blanking_cell":
         header_colours = ["white"]
         header_align = "center"
-    elif header_theme == "new_order":
+
+    elif header_theme == "new_order" or header_theme == "new_payment":
         header_colours = ["blue", "bright_blue", "white"]
         header_align = "center"
+
     else:
         header_colours = ["#2D8A60", "#6BCFA2", "white"]
+    ##
+    ##
 
     if header_theme == "new_order":
         header_string = "-- "+header_text+" --|--- New Order ---"
+
+    elif header_theme == "new_payment":
+        header_string = "-- "+header_text+" --|Order Confirmation"
+
     else:
         header_string = header_text
 
@@ -1163,25 +1172,45 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
         # [x for x in text if x.isdigit()]
         return selected_item, full_matched_list
 
-def new_order_payment(start_date, end_date):
 
+def new_order_payment(start_date, end_date):
+    """
+    Take the dates that have been posted and use them to calculate 
+    payment required.
+    - Determines based on the length of hire (in days) will 
+    calculate the number of weeks (rounded up as you can't pay for
+    a fraction of a week).
+    - Takes 1 of those weeks for the initial payment field
+    - The remaining weeks are charged at the weekly rate
+    - A total of both initial and remaining weeks are returned
+    """
     global selected_item
 
     start = datetime.strptime(start_date, '%d/%m/%Y')
     end = datetime.strptime(end_date, '%d/%m/%Y')
-    date_diff = end - start
-    days = date_diff.days
+    date_difference = end - start
+    days = date_difference.days
     weeks = days/7
-    weeks_up = math.ceil(weeks)
-    weeks_to_pay = weeks_up - 1
-    initial_week = selected_item.item_start_cost
-    total_remaining_weeks = (weeks_to_pay - 1) * float(selected_item.item_week_cost.strip("£"))
-    print(days)
-    print(weeks)
-    print(weeks_up)
-    print(weeks_to_pay)
-    print(initial_week)
-    print(total_remaining_weeks)
+    weeks_round_up = math.ceil(weeks)
+    weeks_to_pay = weeks_round_up - 1
+    initial_week_charge = float(selected_item.item_start_cost.strip("£"))
+    total_remaining_weeks = ((weeks_to_pay - 1) *
+                             float(selected_item.item_week_cost.strip("£")))
+    total_overall = initial_week_charge + total_remaining_weeks
+
+    return [initial_week_charge, total_remaining_weeks, total_overall]
+    
+
+def finalise_order_and_payment(get_item, start_date, end_date, payment_amounts):
+    """
+    Take all collected values and display for confirmation
+    - Present to the user to confirm order.
+    - Prompt for payment (using dummy cards).
+    - Display dummy cards for clarity purposes
+    """
+    create_header_title(f"{selected_customer.fname} "
+                        f"{selected_customer.lname}",
+                        "new_payment")
 
 
 def create_new_order(order_selection, orders_available, full_matched_list):
@@ -1192,7 +1221,17 @@ def create_new_order(order_selection, orders_available, full_matched_list):
     get_item, get_alternatives = check_chosen_despatch_dates(
                                 start_date, end_date,
                                 full_matched_list, order_selection)
-    take_payment = new_order_payment(start_date, end_date)
+    payment_amounts = new_order_payment(start_date, end_date)
+    print(payment_amounts)
+    print(start_date)
+    print(end_date)
+    print(get_item)
+    """
+    take_payment = finalise_order_and_payment(get_item,
+                                              start_date,
+                                              end_date,
+                                              payment_amounts)
+    """
 
 
 def main():
