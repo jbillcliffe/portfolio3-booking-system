@@ -92,3 +92,23 @@ class Customer:
 
         if where_from != "view_orders" and where_from != "selected_order":
             return True
+
+    def customer_confirmation_display(self):
+        table_data = [
+            [
+                ("Customer ID").ljust(15),
+                ((colored(self.customer_id, "cyan"))).rjust(50)],
+            [
+                ("Address").ljust(15),
+                ((colored(self.address, "cyan"))).rjust(50)],
+            [
+                ("Postcode").ljust(15),
+                ((colored(self.postcode, "cyan"))).rjust(50)]]
+
+        table = SingleTable(table_data)
+
+        table.inner_heading_row_border = False
+        table.inner_row_border = False
+        table.justify_columns[0] = 'left'
+        table.justify_columns[1] = 'right'
+        print(table.table)

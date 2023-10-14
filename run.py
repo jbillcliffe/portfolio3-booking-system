@@ -80,7 +80,7 @@ def create_header_title(header_text, header_theme=None,
         header_string = "-- "+header_text+" --|--- New Order ---"
 
     elif header_theme == "new_payment":
-        header_string = "-- "+header_text+" --|Order Confirmation"
+        header_string = "Order Confirmation"
 
     else:
         header_string = header_text
@@ -1135,7 +1135,6 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
                     if (datetime.strptime(this_del, '%Y/%m/%d') <= start <=
                             datetime.strptime(this_col, '%Y/%m/%d')):
                         continue
-
                     if (datetime.strptime(this_del, '%Y/%m/%d') <= end <=
                             datetime.strptime(this_col, '%Y/%m/%d')):
                         continue
@@ -1149,7 +1148,6 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
             item_counter += 1
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}")
-    selected_customer.customer_display()
     multiline_display_printer([
             "{:-^80}".format(""),
             "{:-^80}".format(f" Available List Of : {order_selection[1]} "),
@@ -1201,8 +1199,9 @@ def new_order_payment(start_date, end_date):
                              float(selected_item.item_week_cost.strip("£")))
     total_overall = initial_week_charge + total_remaining_weeks
 
-    return [initial_week_charge, total_remaining_weeks, total_overall]
-    
+    return [initial_week_charge, weeks_round_up, 
+            total_remaining_weeks, total_overall]
+
 
 def finalise_order_and_payment(get_item, start_date,
                                end_date, payment_amounts):
@@ -1215,7 +1214,9 @@ def finalise_order_and_payment(get_item, start_date,
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}",
                         "new_payment")
-
+    selected_customer.customer_confirmation_display()
+    selected_item.item_confirmation_display(start_date, end_date,
+                                            payment_amounts)
 
 def create_new_order(order_selection, orders_available, full_matched_list):
 
@@ -1225,19 +1226,18 @@ def create_new_order(order_selection, orders_available, full_matched_list):
     get_item, get_alternatives = check_chosen_despatch_dates(
                             start_date, end_date,
                             full_matched_list, order_selection)
-    initial_cost, total_weeks_cost, total_cost = (
+    initial_cost, weeks_round_up, total_weeks_cost, total_cost = (
                                 new_order_payment(start_date, end_date))
+    payment_amounts = [weeks_round_up, total_weeks_cost, total_cost]
+
+    finalise_order_and_payment(get_item, start_date, end_date, payment_amounts)
+    """
     print(initial_cost)
     print(total_weeks_cost)
     print(total_cost)
     print(start_date)
     print(end_date)
     print(get_item.item_id)
-    """
-    take_payment = finalise_order_and_payment(get_item,
-                                              start_date,
-                                              end_date,
-                                              payment_amounts)
     """
 
 
