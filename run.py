@@ -2,6 +2,7 @@
 # You can delete these comments, but do not change the name of this file
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 from cfonts import render, say
+from colorama import Fore, Back, Style
 from termcolor import colored, cprint
 from terminaltables import SingleTable
 from datetime import datetime
@@ -139,6 +140,7 @@ def validate_choice(user_input, option_choices,
     try:
         # if input sent, not in list sent
         if user_input not in option_choices:
+            # Exceptions when not in the list
             if (user_input == "M" or user_input == "m"):
                 main()
             elif current_header == "no_head":
@@ -153,6 +155,7 @@ def validate_choice(user_input, option_choices,
                        f"{', '.join(option_choices)}. "
                        f"You chose {choice_display}.", "red")
                 return False
+            
             else:
                 choice_display = user_input
                 # if input sent is blank when whitespace removed
@@ -280,6 +283,49 @@ def validate_date(order_selection, date_string, compare_date=None):
             cprint("{:-^80}".format(""), "red")
         return False
     return True
+
+
+def display_success_and_fail_cards():
+
+    hash_string = "###############"
+    space_string = "           "
+    short_hash = "##"
+
+    print("\033[1;32m" + hash_string +
+            space_string +
+            "\033[1;31m" + hash_string +
+            space_string +
+            "\033[1;33m" + hash_string)
+
+    print("\033[1;32m" + short_hash +
+            "\033[1;32m" + "    0000   " +
+            "\033[1;32m" + short_hash +
+            space_string +
+            "\033[1;31m" + short_hash +
+            "\033[1;31m" + "    1111   " +
+            "\033[1;31m" + short_hash +
+            space_string +
+            "\033[1;33m" + short_hash +
+            "\033[1;33m" + "    2222   " +
+            "\033[1;33m" + short_hash)
+
+    print("\033[1;32m" + short_hash +
+            "\033[1;32m" + "  Success  " +
+            "\033[1;32m" + short_hash +
+            space_string +
+            "\033[1;31m" + short_hash +
+            "\033[1;31m" + "  Decline  " +
+            "\033[1;31m" + short_hash +
+            space_string +
+            "\033[1;33m" + short_hash +
+            "\033[1;33m" + "   Stole   " +
+            "\033[1;33m" + short_hash)
+
+    print("\033[1;32m" + hash_string +
+            space_string +
+            "\033[1;31m" + hash_string +
+            space_string +
+            "\033[1;33m"+hash_string + "\033[0m")
 
 
 def multiline_display_printer(display_list, menu_return=False, colour=None):
@@ -670,7 +716,7 @@ def customer_options_menu():
     5 = Return To Menu
     """
     while True:
-        customer_option_input = input("Choose Option : ")
+        customer_option_input = input("Choose Menu Option : ")
 
         if validate_choice(customer_option_input,
                            ["1", "2", "3", "4", "5"],
@@ -1185,8 +1231,6 @@ def new_order_payment(start_date, end_date):
     - The remaining weeks are charged at the weekly rate
     - A total of both initial and remaining weeks are returned
     """
-    global selected_item
-
     start = datetime.strptime(start_date, '%d/%m/%Y')
     end = datetime.strptime(end_date, '%d/%m/%Y')
     date_difference = end - start
@@ -1195,16 +1239,20 @@ def new_order_payment(start_date, end_date):
     weeks_round_up = math.ceil(weeks)
     weeks_to_pay = weeks_round_up - 1
     initial_week_charge = float(selected_item.item_start_cost.strip("£"))
-    total_remaining_weeks = ((weeks_to_pay - 1) *
+    total_remaining_weeks = (weeks_to_pay *
                              float(selected_item.item_week_cost.strip("£")))
     total_overall = initial_week_charge + total_remaining_weeks
 
-    return [initial_week_charge, weeks_round_up, 
-            total_remaining_weeks, total_overall]
+    total_remaining_weeks = '{0:.2f}'.format(total_remaining_weeks)
+    total_overall = '{0:.2f}'.format(total_overall)
+
+    return [initial_week_charge, weeks_to_pay,
+            total_remaining_weeks, total_overall, weeks_round_up]
 
 
 def finalise_order_and_payment(get_item, start_date,
-                               end_date, payment_amounts):
+                               end_date, payment_amounts,
+                               card_error=None):
     """
     Take all collected values and display for confirmation
     - Present to the user to confirm order.
@@ -1218,7 +1266,23 @@ def finalise_order_and_payment(get_item, start_date,
     selected_item.item_confirmation_display(start_date, end_date,
                                             payment_amounts,
                                             selected_customer)
+    display_success_and_fail_cards()
+    
+    initiate_card_payment(card_error)
 
+def initiate_card_payment(card_error=None):
+
+    cards = ["0000","1111","2222"]
+    card_payment = input("Choose a card from above : ")
+
+    if validate_choice(card_payment, cards):
+        if card_payment == "0000":
+
+            multiline_display_printer([], colour="green")
+        elif card_payment == "1111":
+            multiline_display_printer([], colour="green")
+        elif card_payment == "2222":
+            multiline_display_printer([], colour="green")
 
 def create_new_order(order_selection, orders_available, full_matched_list):
 
@@ -1228,19 +1292,14 @@ def create_new_order(order_selection, orders_available, full_matched_list):
     get_item, get_alternatives = check_chosen_despatch_dates(
                             start_date, end_date,
                             full_matched_list, order_selection)
-    initial_cost, weeks_round_up, total_weeks_cost, total_cost = (
-                                new_order_payment(start_date, end_date))
-    payment_amounts = [weeks_round_up, total_weeks_cost, total_cost]
+    (initial_cost, weeks_remaining,
+        total_weeks_cost, total_cost, total_weeks) = (
+                            new_order_payment(start_date, end_date))
+    payment_amounts = [weeks_remaining, total_weeks_cost,
+                       total_cost, total_weeks]
 
-    finalise_order_and_payment(get_item, start_date, end_date, payment_amounts)
-    """
-    print(initial_cost)
-    print(total_weeks_cost)
-    print(total_cost)
-    print(start_date)
-    print(end_date)
-    print(get_item.item_id)
-    """
+    finalise_order_and_payment(get_item, start_date,
+                               end_date, payment_amounts)
 
 
 def main():

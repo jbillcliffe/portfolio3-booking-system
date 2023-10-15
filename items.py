@@ -26,67 +26,63 @@ class Item:
 
         item_data = [
             [
-                ("{:<20}".format("Customer ID")),
+                (colored("{:<20}".format("Customer ID"), "cyan")),
                 (colored("{:>57}".format(
                     selected_customer.customer_id), "cyan"))],
             [
-                ("{:<20}".format("Address")),
+                (colored("{:<20}".format("Address"), "cyan")),
                 (colored("{:>57}".format(
                     selected_customer.address), "cyan"))],
             [
-                ("{:<20}".format("Postcode")),
+                (colored("{:<20}".format("Postcode"), "cyan")),
                 (colored("{:>57}".format(
                     selected_customer.postcode), "cyan"))],
             [
-                ("{:<20}".format("Item ID")),
+                (colored("{:<20}".format("Item ID"), "yellow")),
                 (colored("{:>57}".format(
                          self.item_id),
                          "yellow"))],
             [
-                ("{:<20}".format("Item")),
+                (colored("{:<20}".format("Item"), "yellow")),
                 (colored("{:>57}".format(
                          f"{self.item_name} ({self.item_type})"),
                          "yellow"))],
             [
-                ("{:<20}".format("Income")),
-                (colored("{:>57}".format(
-                         self.item_income),
-                         "yellow"))],
-            [
-                ("{:<20}".format("Delivery")),
+                (colored("{:<20}".format("Delivery"), "red")),
                 (colored("{:>57}".format(
                          start_date),
                          "red"))],
             [
-                ("{:<20}".format("Collection")),
+                (colored("{:<20}".format("Collection"), "red")),
                 (colored("{:>57}".format(
                          end_date),
                          "red"))],
             [
-                ("{:<20}".format("Initial Cost")),
+                (colored("{:<20}".format("Initial Cost"), "magenta")),
                 (colored("{:>57}".format(
                          f"{self.item_start_cost}"),
                          "magenta"))],
             [
-                ("{:<20}".format("Per Week")),
+                (colored("{:<20}".format("Per Week"), "magenta")),
                 (colored("{:>57}".format(
-                         self.item_start_cost),
+                         self.item_week_cost),
                          "magenta"))],
             [
-                ("{:<20}".format(f"Cost For {payment_amounts[0]} Weeks")),
+                (colored("{:<20}".format(
+                         f"Remaining {payment_amounts[0]} Weeks"),
+                         "magenta")),
                 (colored("{:>57}".format(
                          f"£{payment_amounts[1]}"),
                          "magenta"))],
             [
-                ("{:<20}".format("Total Cost")),
+                (colored("{:<20}".format("Total Cost"), "magenta")),
                 (colored("{:>57}".format(
-                         f"£{payment_amounts[2]}"),
-                         "magenta"))]]
+                         f"£{payment_amounts[2]}"), "magenta"))]]
 
         item_table = SingleTable(item_data)
 
         item_table.inner_heading_row_border = False
-        item_table.inner_row_border = True
+        item_table.inner_row_border = False
         item_table.justify_columns[0] = 'left'
         item_table.justify_columns[1] = 'right'
         print(item_table.table)
