@@ -12,6 +12,7 @@ import math
 import gspread
 from google.oauth2.service_account import Credentials
 from customers import Customer
+from loading import TerminalLoading
 from orders import Order
 from items import Item
 
@@ -1262,27 +1263,88 @@ def finalise_order_and_payment(get_item, start_date,
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}",
                         "new_payment")
-    # selected_customer.customer_confirmation_display()
+    
     selected_item.item_confirmation_display(start_date, end_date,
                                             payment_amounts,
                                             selected_customer)
     display_success_and_fail_cards()
-    
-    initiate_card_payment(card_error)
 
-def initiate_card_payment(card_error=None):
+    if card_error == "yellow":
+        cprint("{:-^80}".format(f"STOLEN: CALL THE POLICE!!!"), "yellow")
+    elif card_error == "red":
+        cprint("{:-^80}".format(
+            f"DECLINED: Please provide a card with enough funds"),
+            "red")
+    elif card_error == "green":
+        cprint("{:<80}".format(
+            f"SUCCESS: Payment Complete. Returning to customer....."),
+            "green")
+        save_new_order(start_date, end_date, payment_amounts)
+
 
     cards = ["0000","1111","2222"]
     card_payment = input("Choose a card from above : ")
 
     if validate_choice(card_payment, cards):
+        mod = ""
         if card_payment == "0000":
-
-            multiline_display_printer([], colour="green")
+            mod = "green"
+            
         elif card_payment == "1111":
-            multiline_display_printer([], colour="green")
+            mod = "red"
         elif card_payment == "2222":
-            multiline_display_printer([], colour="green")
+            mod = "yellow"
+
+        finalise_order_and_payment(get_item, start_date,
+                               end_date, payment_amounts,
+                               mod)
+
+
+def save_new_order(start_date, end_date, payment_amounts):
+    # order_id	customer_id	item_id	order_intial	order_per_week	order_start	order_end
+    # invoice_id	order_id	invoice_date	invoice_paid	invoice_details
+    #[weeks_remaining, total_weeks_cost, total_cost, total_weeks]
+    TerminalLoading()
+
+    orders_length = SHEET.worksheet("orders").row_count
+    order_id = "PT3-O"+str(orders_length)
+    invoices_length = SHEET.worksheet("invoices").row_count
+    invoice_id = "PT3-I"+str(invoices_length)
+
+    start_datetime = datetime.strptime(start_date, '%d/%m/%Y')
+    end_datetime = datetime.strptime(end_date, '%d/%m/%Y')
+    today = datetime.now()
+
+    save_start = f"{start_datetime.year}/{start_datetime.month}/{start_datetime.days}"
+    save_end = f"{end_datetime.year}/{end_datetime.month}/{end_datetime.days}"
+    save_today = f"{today.year}/{today.month}/{today.days}"
+
+    order_data = [order_id,
+                  selected_customer.customer_id,
+                  selected_item.item_id,
+                  selected_item.item_start_cost,
+                  selected_item.item_week_cost,
+                  save_start,
+                  save_end]
+
+    invoice_data = [invoice_id,
+                    order_id,
+                    save_today,
+                    payment_amounts[2],
+                    "Initial Hire Cost"]
+
+    get_item_cell = SHEET.worksheet("items").find(selected_item.item_id, in_column=1)
+    get_item_row = get_item_cell.row
+    delivery_string = get_item_row[5]
+    collection_string = get_item_row[6]
+    
+    update_worksheet.update_cell(get_worksheet_row, columns[x], data[x])
+
+
+
+    addin_selected_worksheet(, "orders"):
+    update_selected_worksheet(identifier, data, columns, worksheet):
+    time.sleep(3)
 
 def create_new_order(order_selection, orders_available, full_matched_list):
 
