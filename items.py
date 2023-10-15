@@ -21,11 +21,24 @@ class Item:
         self.item_repair = item_repair
         self.item_income = item_income
 
-    def item_confirmation_display(self, start_date, end_date, payment_amounts):
-        # payment_amounts = [weeks_round_up, total_weeks_cost, total_cost]
+    def item_confirmation_display(self, start_date, end_date,
+                                  payment_amounts, selected_customer):
+
         item_data = [
             [
-                ("{:<20}".format("ID")),
+                ("{:<20}".format("Customer ID")),
+                (colored("{:>57}".format(
+                    selected_customer.customer_id), "cyan"))],
+            [
+                ("{:<20}".format("Address")),
+                (colored("{:>57}".format(
+                    selected_customer.address), "cyan"))],
+            [
+                ("{:<20}".format("Postcode")),
+                (colored("{:>57}".format(
+                    selected_customer.postcode), "cyan"))],
+            [
+                ("{:<20}".format("Item ID")),
                 (colored("{:>57}".format(
                          self.item_id),
                          "yellow"))],

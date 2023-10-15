@@ -1214,9 +1214,11 @@ def finalise_order_and_payment(get_item, start_date,
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}",
                         "new_payment")
-    selected_customer.customer_confirmation_display()
+    # selected_customer.customer_confirmation_display()
     selected_item.item_confirmation_display(start_date, end_date,
-                                            payment_amounts)
+                                            payment_amounts,
+                                            selected_customer)
+
 
 def create_new_order(order_selection, orders_available, full_matched_list):
 

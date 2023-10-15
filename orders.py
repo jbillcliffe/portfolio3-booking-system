@@ -5,6 +5,7 @@ from termcolor import colored, cprint
 from terminaltables import SingleTable
 from items import Item
 
+
 class Order:
 
     # Creates an instance of Customer
