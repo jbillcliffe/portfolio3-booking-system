@@ -1,11 +1,12 @@
 from termcolor import colored, cprint
 import time
 
+
 class TerminalLoading:
 
     # Creates an instance of Customer
     def __init__(self):
-        animation = [
+        self.animation = [
             "[                     ]",
             "[=                    ]",
             "[===                  ]",
@@ -36,10 +37,19 @@ class TerminalLoading:
             "[                    =]",
             "[                     ]"]
 
+    def display_loading(self, interval_time):
+
         notcomplete = True
         i = 0
+        end_time = interval_time * 10
 
         while notcomplete:
-            cprint("{:-^80}".format(animation[i % len(animation)]), "green", end='\r')
+            cprint("{:-^80}".format(self.animation[i % len(self.animation)]),
+                   "green",
+                   end='\r')
             time.sleep(.1)
             i += 1
+
+            if i >= end_time:
+                notcomplete = False
+                return True

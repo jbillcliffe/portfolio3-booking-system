@@ -10,6 +10,7 @@ from datetime import date
 import os
 import math
 import gspread
+import time
 from google.oauth2.service_account import Credentials
 from customers import Customer
 from loading import TerminalLoading
@@ -156,7 +157,7 @@ def validate_choice(user_input, option_choices,
                        f"{', '.join(option_choices)}. "
                        f"You chose {choice_display}.", "red")
                 return False
-            
+
             else:
                 choice_display = user_input
                 # if input sent is blank when whitespace removed
@@ -205,7 +206,7 @@ def validate_input_string(input_prompt, input_from=None,
                 print("Choose Option : "+choice_input)
                 print("Where multiple fields are present, "
                       "leave blank to exclude from update")
-                
+
                 if input_from == "fname":
                     cprint("Enter customer first name : No Update",
                            "green")
@@ -223,7 +224,7 @@ def validate_input_string(input_prompt, input_from=None,
                     cprint("Enter customer postcode : No Update",
                            "green")
                 return "EmptyOK"
-        
+
         except ValueError as e:
 
             if input_from == "search_customer":
@@ -293,40 +294,40 @@ def display_success_and_fail_cards():
     short_hash = "##"
 
     print("\033[1;32m" + hash_string +
-            space_string +
-            "\033[1;31m" + hash_string +
-            space_string +
-            "\033[1;33m" + hash_string)
+          space_string +
+          "\033[1;31m" + hash_string +
+          space_string +
+          "\033[1;33m" + hash_string)
 
     print("\033[1;32m" + short_hash +
-            "\033[1;32m" + "    0000   " +
-            "\033[1;32m" + short_hash +
-            space_string +
-            "\033[1;31m" + short_hash +
-            "\033[1;31m" + "    1111   " +
-            "\033[1;31m" + short_hash +
-            space_string +
-            "\033[1;33m" + short_hash +
-            "\033[1;33m" + "    2222   " +
-            "\033[1;33m" + short_hash)
+          "\033[1;32m" + "    0000   " +
+          "\033[1;32m" + short_hash +
+          space_string +
+          "\033[1;31m" + short_hash +
+          "\033[1;31m" + "    1111   " +
+          "\033[1;31m" + short_hash +
+          space_string +
+          "\033[1;33m" + short_hash +
+          "\033[1;33m" + "    2222   " +
+          "\033[1;33m" + short_hash)
 
     print("\033[1;32m" + short_hash +
-            "\033[1;32m" + "  Success  " +
-            "\033[1;32m" + short_hash +
-            space_string +
-            "\033[1;31m" + short_hash +
-            "\033[1;31m" + "  Decline  " +
-            "\033[1;31m" + short_hash +
-            space_string +
-            "\033[1;33m" + short_hash +
-            "\033[1;33m" + "   Stole   " +
-            "\033[1;33m" + short_hash)
+          "\033[1;32m" + "  Success  " +
+          "\033[1;32m" + short_hash +
+          space_string +
+          "\033[1;31m" + short_hash +
+          "\033[1;31m" + "  Decline  " +
+          "\033[1;31m" + short_hash +
+          space_string +
+          "\033[1;33m" + short_hash +
+          "\033[1;33m" + "   Stole   " +
+          "\033[1;33m" + short_hash)
 
     print("\033[1;32m" + hash_string +
-            space_string +
-            "\033[1;31m" + hash_string +
-            space_string +
-            "\033[1;33m"+hash_string + "\033[0m")
+          space_string +
+          "\033[1;31m" + hash_string +
+          space_string +
+          "\033[1;33m"+hash_string + "\033[0m")
 
 
 def multiline_display_printer(display_list, menu_return=False, colour=None):
@@ -1223,9 +1224,9 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
 
 def new_order_payment(start_date, end_date):
     """
-    Take the dates that have been posted and use them to calculate 
+    Take the dates that have been posted and use them to calculate
     payment required.
-    - Determines based on the length of hire (in days) will 
+    - Determines based on the length of hire (in days) will
     calculate the number of weeks (rounded up as you can't pay for
     a fraction of a week).
     - Takes 1 of those weeks for the initial payment field
@@ -1263,7 +1264,7 @@ def finalise_order_and_payment(get_item, start_date,
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}",
                         "new_payment")
-    
+
     selected_item.item_confirmation_display(start_date, end_date,
                                             payment_amounts,
                                             selected_customer)
@@ -1281,43 +1282,38 @@ def finalise_order_and_payment(get_item, start_date,
             "green")
         save_new_order(start_date, end_date, payment_amounts)
 
-
-    cards = ["0000","1111","2222"]
+    cards = ["0000", "1111",  "2222"]
     card_payment = input("Choose a card from above : ")
 
     if validate_choice(card_payment, cards):
         mod = ""
         if card_payment == "0000":
             mod = "green"
-            
+
         elif card_payment == "1111":
             mod = "red"
         elif card_payment == "2222":
             mod = "yellow"
 
         finalise_order_and_payment(get_item, start_date,
-                               end_date, payment_amounts,
-                               mod)
+                                   end_date, payment_amounts,
+                                   mod)
 
 
 def save_new_order(start_date, end_date, payment_amounts):
-    # order_id	customer_id	item_id	order_intial	order_per_week	order_start	order_end
-    # invoice_id	order_id	invoice_date	invoice_paid	invoice_details
-    #[weeks_remaining, total_weeks_cost, total_cost, total_weeks]
-    TerminalLoading()
 
+    # ORDERS DATA
     orders_length = SHEET.worksheet("orders").row_count
     order_id = "PT3-O"+str(orders_length)
-    invoices_length = SHEET.worksheet("invoices").row_count
-    invoice_id = "PT3-I"+str(invoices_length)
 
     start_datetime = datetime.strptime(start_date, '%d/%m/%Y')
     end_datetime = datetime.strptime(end_date, '%d/%m/%Y')
-    today = datetime.now()
-
-    save_start = f"{start_datetime.year}/{start_datetime.month}/{start_datetime.days}"
-    save_end = f"{end_datetime.year}/{end_datetime.month}/{end_datetime.days}"
-    save_today = f"{today.year}/{today.month}/{today.days}"
+    save_start = (f"{start_datetime.year}/"
+                  f"{start_datetime.month}/"
+                  f"{start_datetime.day}")
+    save_end = (f"{end_datetime.year}/"
+                f"{end_datetime.month}/"
+                f"{end_datetime.day}")
 
     order_data = [order_id,
                   selected_customer.customer_id,
@@ -1327,24 +1323,67 @@ def save_new_order(start_date, end_date, payment_amounts):
                   save_start,
                   save_end]
 
+    # INVOICES DATA
+    invoices_length = SHEET.worksheet("invoices").row_count
+    invoice_id = "PT3-I"+str(invoices_length)
+    today = datetime.now()
+    save_today = f"{today.year}/{today.month}/{today.day}"
+
     invoice_data = [invoice_id,
                     order_id,
                     save_today,
-                    payment_amounts[2],
-                    "Initial Hire Cost"]
+                    str("£"+payment_amounts[2]),
+                    "Initial hire cost"]
 
-    get_item_cell = SHEET.worksheet("items").find(selected_item.item_id, in_column=1)
-    get_item_row = get_item_cell.row
-    delivery_string = get_item_row[5]
-    collection_string = get_item_row[6]
+    # ITEMS DATA
+    delivery_list = []
+    collection_list = []
+    income = 0.00
+
+    get_item_cell = SHEET.worksheet("items").find(selected_item.item_id,
+                                                  in_column=1)
+    row_id = get_item_cell.row
+    get_item_row = SHEET.worksheet("items").row_values(row_id)
     
-    update_worksheet.update_cell(get_worksheet_row, columns[x], data[x])
+    if get_item_row[5]:
+        delivery_list = get_item_row[5].split(", ")
+    if get_item_row[6]:
+        collection_list = get_item_row[6].split(", ")
 
+    delivery_list.append(save_start)
+    collection_list.append(save_end)
 
+    delivery_list = ", ".join(delivery_list)
+    collection_list = ", ".join(collection_list)
 
-    addin_selected_worksheet(, "orders"):
-    update_selected_worksheet(identifier, data, columns, worksheet):
-    time.sleep(3)
+    if get_item_row[8]:
+        income = float(get_item_row[8].strip("£"))
+    income += float(payment_amounts[2])
+    income = "£"+'{0:.2f}'.format(income)
+
+    item_data = [delivery_list, collection_list, income]
+    item_columns = [6, 7, 9]
+
+    # Add order to table
+    if addin_selected_worksheet(order_data, "orders"):
+        # Add invoice to table
+        if addin_selected_worksheet(invoice_data, "invoices"):
+            # Update item in items table
+            if update_selected_worksheet(selected_item.item_id, item_data,
+                                         item_columns, "items"):
+                loading = TerminalLoading()
+                loading.display_loading(5)
+                create_header_title(f"{selected_customer.fname} "
+                                    f"{selected_customer.lname}")
+                selected_customer.customer_display()
+                break
+            else:
+                print("Error in update Items")
+        else:
+            print("Error in add invoice")
+    else:
+        print("Error in add order")
+
 
 def create_new_order(order_selection, orders_available, full_matched_list):
 
@@ -1362,7 +1401,7 @@ def create_new_order(order_selection, orders_available, full_matched_list):
 
     finalise_order_and_payment(get_item, start_date,
                                end_date, payment_amounts)
-
+    
 
 def main():
     """
