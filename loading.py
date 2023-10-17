@@ -37,7 +37,7 @@ class TerminalLoading:
             "[                    =]",
             "[                     ]"]
 
-    def display_loading(self, interval_time):
+    def display_loading(self, interval_time, colour):
 
         notcomplete = True
         i = 0
@@ -45,7 +45,7 @@ class TerminalLoading:
 
         while notcomplete:
             cprint("{:-^80}".format(self.animation[i % len(self.animation)]),
-                   "green",
+                   colour,
                    end='\r')
             time.sleep(.1)
             i += 1

@@ -101,7 +101,7 @@ def create_header_title(header_text, header_theme=None,
     print(blanking_space)
 
 
-def main_menu_init():
+def main_menu_init(prompt=None, colour="yellow"):
     """
     - Give a prompt for menu options.
     - Ask user to create a new customer or search for one.
@@ -110,21 +110,29 @@ def main_menu_init():
       the user input that has been made
     """
     while True:
+        terminal_clear()
+        create_header_title("Renterprise")
+        if prompt:
+            cprint("{:-^80}".format(prompt), colour)
         multiline_display_printer(["Please enter the number "
                                    "that corresponds to your request",
                                    "Would you like to :",
                                    "1. Create a new customer",
-                                   "2. Search for an existing customer"])
+                                   "2. Search for an existing customer",
+                                   "3. Complete repair on an item"])
         main_menu_input = input("Choice : ")
-        if validate_choice(main_menu_input, ["1", "2"], "Renterprise"):
+        if validate_choice(main_menu_input, ["1", "2", "3"], "Renterprise"):
             # terminal_clear()
             if main_menu_input == "1":
                 create_header_title("Create Customer")
                 create_new_customer()
-            else:
+            elif main_menu_input == "2":
                 create_header_title("Search Customer")
                 search_customer()
-            break
+            else:
+                create_header_title("Repair An Item")
+                item_repair()
+        break
 
 
 def validate_choice(user_input, option_choices,
@@ -475,6 +483,18 @@ def search_worksheet(search_this, search_value=None,
                     types_list.append(item_type)
 
         return items_list, types_list
+    elif search_mod == "repair":
+        values = search_worksheet.col_values(8)
+        repair_list = []
+        counter = 1
+        for x in values:
+            if x:
+                repair_list.append(search_worksheet.row_values(counter))
+            counter += 1
+
+        repair_list.pop(0)
+
+        return repair_list
 
 
 def addin_selected_worksheet(data, worksheet):
@@ -496,14 +516,23 @@ def update_selected_worksheet(identifier, data, columns, worksheet):
     by a list, to change data on a row already created
     """
     print(f"Updating {worksheet.capitalize()}..... ")
-    update_worksheet = SHEET.worksheet(worksheet)
-    get_worksheet_cell = update_worksheet.find(identifier, in_column=1)
-    get_worksheet_row = get_worksheet_cell.row
+    if worksheet == "repairs":
+        items_sheet = SHEET.worksheet("items")
+        cell = "H"+get_worksheet_row
+        items_sheet.update_cell(cell, "")
 
-    data_length = len(data)
+    else:
+        update_worksheet = SHEET.worksheet(worksheet)
+        get_worksheet_cell = update_worksheet.find(identifier, in_column=1)
+        get_worksheet_row = get_worksheet_cell.row
 
-    for x in range(data_length):
-        update_worksheet.update_cell(get_worksheet_row, columns[x], data[x])
+        data_length = len(data)
+
+        for x in range(data_length):
+            update_worksheet.update_cell(get_worksheet_row,
+                                         columns[x],
+                                         data[x])
+
 
     print(f"Update to {identifier} in {worksheet.capitalize()} complete.")
     return True
@@ -680,6 +709,93 @@ def search_customer():
 
         break
     customer_options_menu()
+
+
+def item_repair():
+
+    repair_data = search_worksheet("items",
+                                   search_mod="repair")
+    counter = 1
+    table_data = [
+        [
+            (colored("{:^10}".format(""), "blue")),
+            (colored("{:^15}".format("Item ID"), "blue")),
+            (colored("{:^30}".format("Item"), "blue")),
+            (colored("{:^15}".format("Date Booked"), "blue"))]]
+
+    for x in repair_data:
+        repair_date = datetime.strptime(x[7], '%Y/%m/%d')
+        repair_date_format = (
+            f"{repair_date.day}/{repair_date.month}/{repair_date.year}")
+
+        table_data.append(
+            [
+                (colored("{:^10}".format(counter), "yellow")),
+                (colored("{:^15}".format(x[0]), "yellow")),
+                (colored("{:^30}".format(x[2]), "yellow")),
+                (colored("{:^15}".format(repair_date_format), "yellow"))])
+        counter += 1
+
+    table = SingleTable(table_data)
+
+    table.inner_heading_row_border = True
+    table.inner_row_border = True
+    print(table.table)
+
+    no_of_items = len(repair_data)
+
+    if no_of_items == 0:
+        cprint("{:-^80}".format(""), "green")
+        cprint("{:-^80}".format(
+            " No items to repair, returning to Main Menu"), 
+            "green")
+        cprint("{:-^80}".format(""), "green")
+        loading = TerminalLoading()
+        loading.display_loading(7, "yellow")
+        main_menu_init(("{:-^80}".format(
+            " Returned from Repair "), "yellow"))
+
+    if no_of_items == 1:
+        cprint("{:-^80}".format(" Y/Yes/N/No "), "yellow")
+        repair_input = input("Would you like to repair Item ID "
+                             f"{repair_data[0][0]}?")
+        repair_select = validate_choice(
+                repair_input,
+                ["Yes", "Y", "yes", "y",
+                 "No", "N", "no", "n"],
+                "no_head")
+
+        if repair_select:
+            cprint("{:-^80}".format(""), "yellow")
+            cprint("{:-^80}".format(
+                   f" Repairing {repair_data[0][0]} "),
+                   "yellow")
+            cprint("{:-^80}".format(""), "yellow")
+            update_selected_worksheet(repair_data[0][0],
+                                      "", 8, "repairs")
+            loading = TerminalLoading()
+            loading.display_loading(7, "yellow")
+            main_menu_init(" Returned from Repair ", "yellow")
+
+    if no_of_items > 1:
+        
+        repair_range = [*range(1, (len(no_of_items)+1), 1)]
+        repair_choice = input("Choose an item to repair :")
+
+        if validate_choice(repair_choice, repair_range,
+                           "no_head"):
+            repair_index = int(repair_choice) - 1
+            cprint("{:-^80}".format(""), "yellow")
+            cprint("{:-^80}".format(
+                   f" Repairing {repair_data[repair_index][0]} "),
+                   "yellow")
+            cprint("{:-^80}".format(""), "yellow")
+            update_selected_worksheet(repair_data[repair_index][0],
+                                      "", 8, "repairs")
+            loading = TerminalLoading()
+            loading.display_loading(7, "yellow")
+            main_menu_init(("{:-^80}".format(
+                " Returned from Repair "), "yellow"))
 
 
 def display_found_customers(customer_select_options, found_customers):
@@ -1325,7 +1441,7 @@ def save_new_order(start_date, end_date, payment_amounts):
                   selected_item.item_week_cost,
                   save_start,
                   save_end]
-    print(order_data)    
+
     # INVOICES DATA
     invoices_length = SHEET.worksheet("invoices").row_count
     invoice_id = "PT3-I"+str(invoices_length)
@@ -1337,7 +1453,7 @@ def save_new_order(start_date, end_date, payment_amounts):
                     save_today,
                     str("£"+payment_amounts[2]),
                     "Initial hire cost"]
-    print(invoice_data)
+
     # ITEMS DATA
     delivery_list = []
     collection_list = []
@@ -1388,11 +1504,11 @@ def save_new_order(start_date, end_date, payment_amounts):
             if update_selected_worksheet(selected_item.item_id, item_data,
                                          item_columns, "items"):
                 loading = TerminalLoading()
-                loading.display_loading(5)
+                loading.display_loading(7, "green")
                 create_header_title(f"{selected_customer.fname} "
                                     f"{selected_customer.lname}")
                 selected_customer.customer_display()
-                
+
             else:
                 print("Error in update Items")
         else:
@@ -1417,7 +1533,7 @@ def create_new_order(order_selection, orders_available, full_matched_list):
 
     finalise_order_and_payment(get_item, start_date,
                                end_date, payment_amounts)
-    
+
 
 def main():
     """
@@ -1425,7 +1541,6 @@ def main():
     - Display the header.
     - Load the main menu, to provide the first options
     """
-    create_header_title("Renterprise")
     main_menu_init()
 
 
