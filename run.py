@@ -1212,13 +1212,16 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
     if validate_choice(item_select_input,
                        item_string_range,
                        "no_head"):
-        # selected_item = x.item_id for d in full_matched_list
-        chosen_id = available_items_list[(item_counter-1)][1]
+        print(type(item_select_input))
+
+        # Index is +1, as Index 0 is the table headers.
+        chosen_id = available_items_list[int(item_select_input)][1]
+
         for x in full_matched_list:
             if x.item_id == chosen_id:
                 selected_item = x
                 break
-        # [x for x in text if x.isdigit()]
+
         return selected_item, full_matched_list
 
 
@@ -1280,7 +1283,7 @@ def finalise_order_and_payment(get_item, start_date,
         cprint("{:<80}".format(
             f"SUCCESS: Payment Complete. Returning to customer....."),
             "green")
-        save_new_order(start_date, end_date, payment_amounts)
+        return save_new_order(start_date, end_date, payment_amounts)
 
     cards = ["0000", "1111",  "2222"]
     card_payment = input("Choose a card from above : ")
@@ -1322,7 +1325,7 @@ def save_new_order(start_date, end_date, payment_amounts):
                   selected_item.item_week_cost,
                   save_start,
                   save_end]
-
+    print(order_data)    
     # INVOICES DATA
     invoices_length = SHEET.worksheet("invoices").row_count
     invoice_id = "PT3-I"+str(invoices_length)
@@ -1334,7 +1337,7 @@ def save_new_order(start_date, end_date, payment_amounts):
                     save_today,
                     str("£"+payment_amounts[2]),
                     "Initial hire cost"]
-
+    print(invoice_data)
     # ITEMS DATA
     delivery_list = []
     collection_list = []
@@ -1343,8 +1346,21 @@ def save_new_order(start_date, end_date, payment_amounts):
     get_item_cell = SHEET.worksheet("items").find(selected_item.item_id,
                                                   in_column=1)
     row_id = get_item_cell.row
+
+    get_header_row = SHEET.worksheet("items").row_values(1)
     get_item_row = SHEET.worksheet("items").row_values(row_id)
-    
+
+    """
+    If the length of the item row obtained is less than the length
+    it should be, (ie. when no dates for delivery/collection/repair,
+    or income is on an item) the system needs to make the list the
+    correct length
+    """
+
+    if len(get_header_row) > len(get_item_row):
+        while len(get_item_row) < len(get_header_row):
+            get_item_row.append('')
+ 
     if get_item_row[5]:
         delivery_list = get_item_row[5].split(", ")
     if get_item_row[6]:
@@ -1376,7 +1392,7 @@ def save_new_order(start_date, end_date, payment_amounts):
                 create_header_title(f"{selected_customer.fname} "
                                     f"{selected_customer.lname}")
                 selected_customer.customer_display()
-                break
+                
             else:
                 print("Error in update Items")
         else:
