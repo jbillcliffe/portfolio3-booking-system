@@ -515,24 +515,25 @@ def update_selected_worksheet(identifier, data, columns, worksheet):
     Use data sent to function, a list, and update the cells also defined
     by a list, to change data on a row already created
     """
-    print(f"Updating {worksheet.capitalize()}..... ")
     if worksheet == "repairs":
+        print(f"Updating Items..... ")
         items_sheet = SHEET.worksheet("items")
-        cell = "H"+get_worksheet_row
-        items_sheet.update_cell(cell, "")
+        get_worksheet_cell = items_sheet.find(identifier, in_column=1)
+        get_worksheet_row = get_worksheet_cell.row
+        cell = "H"+str(get_worksheet_row)
+        items_sheet.update(cell, "")
 
     else:
+        print(f"Updating {worksheet.capitalize()}..... ")
         update_worksheet = SHEET.worksheet(worksheet)
         get_worksheet_cell = update_worksheet.find(identifier, in_column=1)
         get_worksheet_row = get_worksheet_cell.row
-
         data_length = len(data)
 
         for x in range(data_length):
             update_worksheet.update_cell(get_worksheet_row,
                                          columns[x],
                                          data[x])
-
 
     print(f"Update to {identifier} in {worksheet.capitalize()} complete.")
     return True
@@ -752,8 +753,7 @@ def item_repair():
         cprint("{:-^80}".format(""), "green")
         loading = TerminalLoading()
         loading.display_loading(7, "yellow")
-        main_menu_init(("{:-^80}".format(
-            " Returned from Repair "), "yellow"))
+        main_menu_init(" Returned from repair ", "yellow")
 
     if no_of_items == 1:
         cprint("{:-^80}".format(" Y/Yes/N/No "), "yellow")
@@ -775,7 +775,7 @@ def item_repair():
                                       "", 8, "repairs")
             loading = TerminalLoading()
             loading.display_loading(7, "yellow")
-            main_menu_init(" Returned from Repair ", "yellow")
+            main_menu_init(" Returned from successful repair ", "yellow")
 
     if no_of_items > 1:
         
@@ -794,8 +794,7 @@ def item_repair():
                                       "", 8, "repairs")
             loading = TerminalLoading()
             loading.display_loading(7, "yellow")
-            main_menu_init(("{:-^80}".format(
-                " Returned from Repair "), "yellow"))
+            main_menu_init(" Returned from successful repair ", "yellow")
 
 
 def display_found_customers(customer_select_options, found_customers):
