@@ -17,6 +17,7 @@ from loading import TerminalLoading
 from orders import Order
 from items import Item
 
+
 # Global Constant Google Sheet Variables #
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -32,7 +33,6 @@ APPROVED_BLANKS = ["fname", "lname", "address", "postcode"]
 global selected_customer
 global selected_order
 global selected_item
-
 
 def terminal_clear():
     """
@@ -368,7 +368,7 @@ def multiline_display_printer(display_list, colour=None):
     else:
         for x in display_list:
             print(x)
-            
+
 
 def search_worksheet(search_this, search_value=None,
                      search_columns=None, search_mod=None):
@@ -545,7 +545,7 @@ def update_selected_worksheet(identifier, data, columns, worksheet):
                                               case_sensitive=False)
         get_worksheet_row = get_worksheet_cell.row
         cell = "H"+str(get_worksheet_row)
-        items_sheet.update(cell, "")
+        items_sheet.update_acell(cell, "")
 
     else:
         print(f"Updating {worksheet.capitalize()}..... ")
@@ -1025,7 +1025,7 @@ def view_customer_orders(order_data):
                                                "selected_order")
 
             selected_order.order_display(selected_item)
-
+        
         else:
             order_select_number = 1
             order_select_options = []
@@ -1067,6 +1067,14 @@ def view_customer_orders(order_data):
                 selected_customer.customer_display(selected_order.order_id,
                                                    "selected_order")
                 selected_order.order_display(selected_item)
+
+    else:
+        create_header_title(f"{selected_customer.fname} "
+                            f"{selected_customer.lname}")
+        selected_customer.customer_display()
+        cprint("{:-^80}".format(""), "red")
+        cprint("{:-^80}".format(" No Orders Found "), "red")
+        cprint("{:-^80}".format(""), "red")
     order_options_menu()
 
 
