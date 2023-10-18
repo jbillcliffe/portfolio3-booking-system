@@ -101,7 +101,7 @@ def create_header_title(header_text, header_theme=None,
     print(blanking_space)
 
 
-def main_menu_init(prompt=None, colour="yellow"):
+def main_menu_init(prompt=None, colour="yellow", error=None):
     """
     - Give a prompt for menu options.
     - Ask user to create a new customer or search for one.
@@ -112,6 +112,12 @@ def main_menu_init(prompt=None, colour="yellow"):
     while True:
         terminal_clear()
         create_header_title("Renterprise")
+
+        cprint("{:-^80}".format(""), "green")
+        cprint("{:-^80}".format("AT ANY POINT. ENTER 'M/m' INTO CHOICE TO "
+                                "RETURN TO MAIN MENU"), "green")
+        cprint("{:-^80}".format(""), "green")
+
         if prompt:
             cprint("{:-^80}".format(prompt), colour)
         multiline_display_printer(["Please enter the number "
@@ -120,6 +126,10 @@ def main_menu_init(prompt=None, colour="yellow"):
                                    "1. Create a new customer",
                                    "2. Search for an existing customer",
                                    "3. Complete repair on an item"])
+        if error:
+            cprint("{:-^80}".format(""), "red")
+            cprint("{:-^80}".format(f"ERROR: {error}"), "red")
+            cprint("{:-^80}".format(""), "red")
         main_menu_input = input("Choice : ")
         if validate_choice(main_menu_input, ["1", "2", "3"], "Renterprise"):
             # terminal_clear()
@@ -178,11 +188,17 @@ def validate_choice(user_input, option_choices,
 
     except ValueError as e:
         # terminal_clear()
-        create_header_title(current_header, current_header_theme)
-        cprint("{:-^80}".format(""), "red")
-        cprint("{:-^80}".format(f"ERROR: {e}"), "red")
-        cprint("{:-^80}".format(""), "red")
-        return False
+        if current_header == "Renterprise":
+            return main_menu_init(error=e)
+        elif current_header == "Search Customer":
+            create_header_title("Search Customer")
+            return search_customer(error=e)
+        else:
+            create_header_title(current_header, current_header_theme)
+            cprint("{:-^80}".format(""), "red")
+            cprint("{:-^80}".format(f"ERROR: {e}"), "red")
+            cprint("{:-^80}".format(""), "red")
+            return False
     return True
 
 
@@ -234,19 +250,21 @@ def validate_input_string(input_prompt, input_from=None,
                 return "EmptyOK"
 
         except ValueError as e:
-
+            
             if input_from == "search_customer":
                 create_header_title("Search Customer")
+                return search_customer(e, choice_input)
+            else:
                 cprint("{:-^80}".format(""), "red")
                 cprint("{:-^80}".format(f"ERROR: {e}"), "red")
                 cprint("{:-^80}".format(""), "red")
-                return search_customer()
+                return False
 
         # if input when whitespace removed still has content,
         # return the input content
         if len(input_string.strip()) > 0:
             if (input_from == "search_customer" and
-                    (input_string == "B" or input_string == "b")):
+                    (input_string == "M" or input_string == "m")):
                 create_header_title("Search Customer")
                 return search_customer()
             else:
@@ -338,7 +356,7 @@ def display_success_and_fail_cards():
           "\033[1;33m"+hash_string + "\033[0m")
 
 
-def multiline_display_printer(display_list, menu_return=False, colour=None):
+def multiline_display_printer(display_list, colour=None):
     """
     - This is to shorten the code where there are multiple print
       statements in succssion.
@@ -350,12 +368,7 @@ def multiline_display_printer(display_list, menu_return=False, colour=None):
     else:
         for x in display_list:
             print(x)
-
-    if menu_return is True:
-        cprint("{:-^80}".format(""), "green")
-        cprint("{:-^80}".format(f"ENTER 'M' TO RETURN TO MAIN MENU"), "green")
-        cprint("{:-^80}".format(""), "green")
-
+            
 
 def search_worksheet(search_this, search_value=None,
                      search_columns=None, search_mod=None):
@@ -383,7 +396,9 @@ def search_worksheet(search_this, search_value=None,
     # search_columns is defined by index (1 index in google sheets)
     if search_mod is None:
         for x in search_columns:
-            values = search_worksheet.findall(search_value, in_column=x)
+            values = search_worksheet.findall(search_value,
+                                              in_column=x,
+                                              case_sensitive=False)
             # If customers table is being searched, get data and insert
             # directly
             if search_this == "customers":
@@ -408,7 +423,9 @@ def search_worksheet(search_this, search_value=None,
                         order_sheet = SHEET.worksheet("orders")
                         row = search_worksheet.row_values(y.row)
                         order_id = row[1]
-                        order_row = order_sheet.find(order_id, in_column=0)
+                        order_row = order_sheet.find(order_id,
+                                                     in_column=0,
+                                                     case_sensitive=False)
                         order_values = order_sheet.row_values(order_row.row)
                         customer_id = order_values[1]
                         customer_id_list.append(customer_id)
@@ -416,9 +433,10 @@ def search_worksheet(search_this, search_value=None,
                 # or "orders" to search "customers" for customer data.
                 # Then return the customer data
                 for z in customer_id_list:
-                    customer_values = SHEET.worksheet(
-                                                    "customers").find(
-                                                    z, in_column=1)
+                    customer_values = SHEET.worksheet("customers").find(
+                                                        z,
+                                                        in_column=1,
+                                                        case_sensitive=False)
                     customer_row = SHEET.worksheet(
                                                 "customers").row_values(
                                                 customer_values.row)
@@ -441,7 +459,9 @@ def search_worksheet(search_this, search_value=None,
     elif search_mod == "view_orders":
         order_result = []
         for x in search_columns:
-            values = search_worksheet.findall(search_value, in_column=x)
+            values = search_worksheet.findall(search_value,
+                                              in_column=x,
+                                              case_sensitive=False)
 
             for y in values:
                 row = search_worksheet.row_values(y.row)
@@ -449,7 +469,9 @@ def search_worksheet(search_this, search_value=None,
                                      row[4], row[5], row[6])
                 item_id = row[2]
                 item_sheet = SHEET.worksheet("items")
-                item_cell = item_sheet.find(item_id, in_column=1)
+                item_cell = item_sheet.find(item_id,
+                                            in_column=1,
+                                            case_sensitive=False)
                 item_row = item_sheet.row_values(item_cell.row)
                 item_object = Item(item_row[0], item_row[1], item_row[2],
                                    item_row[3], item_row[4], item_row[5],
@@ -518,7 +540,9 @@ def update_selected_worksheet(identifier, data, columns, worksheet):
     if worksheet == "repairs":
         print(f"Updating Items..... ")
         items_sheet = SHEET.worksheet("items")
-        get_worksheet_cell = items_sheet.find(identifier, in_column=1)
+        get_worksheet_cell = items_sheet.find(identifier,
+                                              in_column=1,
+                                              case_sensitive=False)
         get_worksheet_row = get_worksheet_cell.row
         cell = "H"+str(get_worksheet_row)
         items_sheet.update(cell, "")
@@ -526,7 +550,9 @@ def update_selected_worksheet(identifier, data, columns, worksheet):
     else:
         print(f"Updating {worksheet.capitalize()}..... ")
         update_worksheet = SHEET.worksheet(worksheet)
-        get_worksheet_cell = update_worksheet.find(identifier, in_column=1)
+        get_worksheet_cell = update_worksheet.find(identifier,
+                                                   in_column=1,
+                                                   case_sensitive=False)
         get_worksheet_row = get_worksheet_cell.row
         data_length = len(data)
 
@@ -565,9 +591,10 @@ def create_new_customer():
     if addin_selected_worksheet(customer_data, "customers"):
         # Here need to move to customer display
         selected_customer.customer_display()
+        customer_options_menu()
 
 
-def search_customer():
+def search_customer(error=None, choice=None):
     """
     - Need to define how a search wants to be made.
     - 1. Name (search first and last)
@@ -586,6 +613,7 @@ def search_customer():
         search_num = ""
         search_sheet = ""
         search_cols = []
+        customer_search_input = ""
 
         multiline_display_printer([
             "Please enter the number that corresponds to your request",
@@ -596,64 +624,81 @@ def search_customer():
             "4. Customer Number (Starts. PT3-C*)",
             "5. Order Number (Starts. PT3-O*)",
             "6. Invoice Number (Starts. PT3-I*)",
-            "7. Item Number (Starts. PT3-SN*)"], True)
+            "7. Item Number (Starts. PT3-SN*)"])
+        if error:
+            cprint("{:-^80}".format(f"ERROR: {error}"), "red")
 
-        customer_search_input = input("Choice : ")
+        if choice:
+            customer_search_input = choice
+        else:
+            customer_search_input = input("Customer Search Choice : ")
 
         if validate_choice(customer_search_input,
                            ["1", "2", "3", "4", "5", "6", "7"],
                            "Search Customer"):
-            print("Enter 'B' to return to search criteria")
+            print("Enter 'M' to return to search criteria")
 
             if customer_search_input == "1":
                 search_sheet = "customers"
                 search_cols = [2, 3]
-                search_num = validate_input_string("Enter customer first "
-                                                   "name or surname : ",
-                                                   "search_customer",
-                                                   choice_input="search_name")
+                search_num = validate_input_string(
+                    "Enter customer first name or surname : ",
+                    "search_customer",
+                    customer_search_input,
+                    "search_name")
 
             elif customer_search_input == "2":
                 search_sheet = "customers"
                 search_cols = [4]
                 search_num = validate_input_string(
-                    "Enter customer address : ", "search_customer",
-                    choice_input="search_address")
+                    "Enter customer address : ",
+                    "search_customer",
+                    customer_search_input,
+                    "search_address")
 
             elif customer_search_input == "3":
                 search_sheet = "customers"
                 search_cols = [5]
                 search_num = validate_input_string(
-                    "Enter customer postcode : ", "search_customer",
-                    choice_input="search_postcode")
+                    "Enter customer postcode : ",
+                    "search_customer",
+                    customer_search_input,
+                    "search_postcode")
 
             elif customer_search_input == "4":
                 search_sheet = "customers"
                 search_cols = [1]
                 search_num = validate_input_string(
-                    "Enter customer number : ", "search_customer",
-                    choice_input="search_number")
+                    "Enter customer number : ",
+                    "search_customer",
+                    customer_search_input,
+                    "search_number")
 
             elif customer_search_input == "5":
                 search_sheet = "orders"
                 search_cols = [1]
-                search_num = validate_input_string("Enter order number : ",
-                                                   "search_customer",
-                                                   choice_input="search_order")
+                search_num = validate_input_string(
+                    "Enter order number : ",
+                    "search_customer",
+                    customer_search_input,
+                    "search_order")
 
             elif customer_search_input == "6":
                 search_sheet = "invoices"
                 search_cols = [1]
                 search_num = validate_input_string(
                     "Enter invoice number : ", "search_customer",
-                    choice_input="search_invoice")
+                    customer_search_input,
+                    "search_invoice")
 
             elif customer_search_input == "7":
                 search_sheet = "orders"
                 search_cols = [2]
-                search_num = validate_input_string("Enter item number : ",
-                                                   "search_customer",
-                                                   choice_input="search_item")
+                search_num = validate_input_string(
+                    "Enter item number : ",
+                    "search_customer",
+                    customer_search_input,
+                    "search_item")
 
         if search_num:
             search_data = search_worksheet(search_sheet,
@@ -664,8 +709,6 @@ def search_customer():
             # Only one customer can be worked with at a time and it is
             # required to be manipulated in several areas
             global selected_customer
-
-            # terminal_clear()
 
             if search_data:
                 if len(search_data) == 1:
@@ -778,9 +821,12 @@ def item_repair():
             main_menu_init(" Returned from successful repair ", "yellow")
 
     if no_of_items > 1:
-        
-        repair_range = [*range(1, (len(no_of_items)+1), 1)]
-        repair_choice = input("Choose an item to repair :")
+
+        repair_range_ints = [*range(1, (no_of_items+1), 1)]
+        repair_strings = map(str, repair_range_ints)
+        repair_range = (list(repair_strings))
+
+        repair_choice = input("Choose an item to repair : ")
 
         if validate_choice(repair_choice, repair_range,
                            "no_head"):
@@ -1243,11 +1289,11 @@ def display_order_date_choose(order_selection):
         "{:-^80}".format(f" Initial Cost : {order_selection[2]} "),
         "{:-^80}".format(f" Weekly Cost : {order_selection[3]} "),
         "{:-^80}".format(""),
-        "{:-^80}".format(" CHOOSE ORDER DATES ")], colour="green")
+        "{:-^80}".format(" CHOOSE ORDER DATES ")], "green")
     multiline_display_printer([
         "{:-^80}".format(" Use the format DD/MM/YYYY, "
                          "DD/MM can be 1 or 2 digits "),
-        "{:-^80}".format(" YYYY must be 4 digits ")], colour="cyan")
+        "{:-^80}".format(" YYYY must be 4 digits ")], "cyan")
     print("")
 
 
@@ -1314,7 +1360,7 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
     multiline_display_printer([
             "{:-^80}".format(""),
             "{:-^80}".format(f" Available List Of : {order_selection[1]} "),
-            "{:-^80}".format("")], colour="green")
+            "{:-^80}".format("")], "green")
     item_choice_table = SingleTable(available_items_list)
     item_choice_table.inner_row_border = True
     print(item_choice_table.table)
@@ -1459,7 +1505,8 @@ def save_new_order(start_date, end_date, payment_amounts):
     income = 0.00
 
     get_item_cell = SHEET.worksheet("items").find(selected_item.item_id,
-                                                  in_column=1)
+                                                  in_column=1,
+                                                  case_sensitive=False)
     row_id = get_item_cell.row
 
     get_header_row = SHEET.worksheet("items").row_values(1)
