@@ -279,7 +279,6 @@ def validate_input_string(input_prompt, input_from=None,
                 cprint("{:-^80}".format(""), "red")
                 cprint("{:-^80}".format(f"ERROR: {e}"), "red")
                 cprint("{:-^80}".format(""), "red")
-                return False
 
         # if input when whitespace removed still has content,
         # return the input content
@@ -447,7 +446,6 @@ def search_worksheet(search_this, search_value=None,
             values = search_worksheet.findall(search_value,
                                               in_column=x,
                                               case_sensitive=False)
-
             # Direct "customers" sheet search
             if search_this == "customers":
                 for y in values:
@@ -533,12 +531,7 @@ def search_worksheet(search_this, search_value=None,
                                    item_row[6], item_row[7], item_row[8])
                 order_result.append([order_object, item_object])
 
-            if len(order_result) == 0:
-                selected_customer.customer_display(
-                        where_from="no_orders_found")
-
-            else:
-                return order_result
+            return order_result
 
     # "get_items" creates Item objects from the search results
     elif search_mod == "get_items":
@@ -654,6 +647,8 @@ def create_new_customer():
     # Move to customer display with the selected_customer dictionary
     if addin_selected_worksheet(customer_data, "customers"):
 
+        create_header_title(f"{selected_customer.fname} "
+                            f"{selected_customer.lname}")
         selected_customer.customer_display()
         customer_options_menu()
 
@@ -983,7 +978,14 @@ def customer_options_menu():
                                                  search_num,
                                                  search_cols,
                                                  "view_orders")
-                view_customer_orders(search_orders)
+                if search_orders:
+                    view_customer_orders(search_orders)
+                else:
+                    create_header_title(f"{selected_customer.fname} "
+                                        f"{selected_customer.lname}")
+                    selected_customer.customer_display(
+                                        where_from="no_orders_found")
+                    customer_options_menu()
                 break
 
             # Change name.
@@ -1210,30 +1212,45 @@ def order_options_menu():
 
 
 def book_new_despatch_dates():
+    """
+    PROTOTYPE.
+    Function would give the facility to change delivery and collection
+    dates on an order after it has been initially created
+    """
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}")
     selected_customer.customer_display(selected_order.order_id,
-                                        "selected_order")
+                                       "selected_order")
     cprint("{:-^80}".format(" Would put despatch modifications here "), "red")
     selected_order.order_display(selected_item)
     order_options_menu()
 
 
 def get_invoice_history():
+    """
+    PROTOTYPE.
+    Function would give the facility to show invoice history
+    that is related to the customer
+    """
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}")
     selected_customer.customer_display(selected_order.order_id,
-                                        "selected_order")
+                                       "selected_order")
     cprint("{:-^80}".format(" Would put invoice history here "), "red")
     selected_order.order_display(selected_item)
     order_options_menu()
 
 
 def take_customer_payment():
+    """
+    PROTOTYPE.
+    Function would give the facility to "take a payment"
+    for any additional costs outside the initial rental.
+    """
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}")
     selected_customer.customer_display(selected_order.order_id,
-                                        "selected_order")
+                                       "selected_order")
     cprint("{:-^80}".format(" Would put payment options here "), "red")
     selected_order.order_display(selected_item)
     order_options_menu()
@@ -1353,7 +1370,7 @@ def order_option_chooser(item_table_data, option_counter, full_matched_list):
             return create_new_order(order_option_selected,
                                     item_table_data,
                                     full_matched_list)
-        break
+        
 
 
 def display_order_date_choose(order_selection):
@@ -1652,10 +1669,14 @@ def save_new_order(start_date, end_date, payment_amounts):
 
 
 def create_new_order(order_selection, orders_available, full_matched_list):
-
     """
     This is a collection of functions within one to manage the ordering of
     functions through the adding an order process.
+    **************
+    get_alternatives would have been used if time allowed. When an item was
+    not available by it's type eg. Bed. It would suggest other beds that
+    were available.
+    ***************
     """
     display_order_date_choose(order_selection)
     start_date = new_order_start_date(order_selection)

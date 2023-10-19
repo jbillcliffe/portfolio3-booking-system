@@ -51,7 +51,7 @@ class Customer:
                 ("").ljust(4),
                 ((colored("5. Main Menu", "yellow"))).rjust(30)]]
 
-        if (where_from == "view_orders" or where_from == "selected_order"):
+        if (where_from == "selected_order"):
             order_options = ["Despatches",
                              "Finance",
                              "Take Payment",
