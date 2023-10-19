@@ -38,11 +38,13 @@ global selected_item
 def terminal_clear():
     """
     A quick function to determine OS and clear terminal
-    so it does not get filled up with lots of text
+    so it does not get filled up with lots of text. Windows
+    and Linux OS require a different command.
     """
     if os.name == 'posix':
         # Clear Linux
         os.system('clear')
+
     else:
         # Clear Windows
         os.system('cls')
@@ -50,16 +52,15 @@ def terminal_clear():
 
 def create_header_title(header_text, header_theme=None,
                         multi_line=False, header_align="left",
-                        font="chrome", background="transparent"):
+                        font="chrome"):
     """
     - A quick function that will take a provided
     font and text and insert it into the console.
     - Although only one line, it is put into it's
     own function due to it's repetition
     - Always starts by clearing the terminal as it is
-    the top element in the terminal window. This only applies if
-    multi_line retains it's default value of false and is not altered
-    by a variable posted to the function
+    the top element in the terminal window. Unless, multi_line is
+    true and the text needs to be preserved
     """
     if multi_line is False:
         terminal_clear()
@@ -77,8 +78,6 @@ def create_header_title(header_text, header_theme=None,
 
     else:
         header_colours = ["#2D8A60", "#6BCFA2", "white"]
-    ##
-    ##
 
     if header_theme == "new_order":
         header_string = "-- "+header_text+" --|--- New Order ---"
@@ -95,8 +94,7 @@ def create_header_title(header_text, header_theme=None,
                     colors=header_colours,
                     align=header_align,
                     space=False,
-                    max_length=0,
-                    background=background)
+                    max_length=0)
 
     print(output)
     print(blanking_space)
@@ -105,13 +103,14 @@ def create_header_title(header_text, header_theme=None,
 def main_menu_init(prompt=None, colour="yellow", error=None):
     """
     - Give a prompt for menu options.
-    - Ask user to create a new customer or search for one.
+    - Ask user to create a new customer, search for one or perform a repair.
     - Run through a choice validator, send the input and options.
     - When validation is complete, run the function which relates to
       the user input that has been made
+    - "prompt" and "error" can be sent to the function. If present then the
+      function will use cprint to display these messages
     """
     while True:
-        terminal_clear()
         create_header_title("Renterprise")
 
         cprint("{:-^80}".format(""), "green")
@@ -121,28 +120,35 @@ def main_menu_init(prompt=None, colour="yellow", error=None):
 
         if prompt:
             cprint("{:-^80}".format(prompt), colour)
+
         multiline_display_printer(["Please enter the number "
                                    "that corresponds to your request",
                                    "Would you like to :",
                                    "1. Create a new customer",
                                    "2. Search for an existing customer",
                                    "3. Complete repair on an item"])
+
         if error:
             cprint("{:-^80}".format(""), "red")
             cprint("{:-^80}".format(f"ERROR: {error}"), "red")
             cprint("{:-^80}".format(""), "red")
+
         main_menu_input = input("Choice : ")
+
         if validate_choice(main_menu_input, ["1", "2", "3"], "Renterprise"):
-            # terminal_clear()
+
             if main_menu_input == "1":
                 create_header_title("Create Customer")
                 create_new_customer()
+
             elif main_menu_input == "2":
                 create_header_title("Search Customer")
                 search_customer()
+
             else:
                 create_header_title("Repair An Item")
                 item_repair()
+
         break
 
 
@@ -157,17 +163,23 @@ def validate_choice(user_input, option_choices,
       then return a True.
     - Otherwise, False is returned and an error displayed.
     - Also checks for a blank input
+    - Handles M/m as an input for retuning to main menu
+    - Handles any specific "not in choices" options. As an example,
+      if no text is entered it will say "no entry" rather than being
+      left as a blank space.
     """
     try:
-        # if input sent, not in list sent
         if user_input not in option_choices:
-            # Exceptions when not in the list
+            # Exceptions when not in the sent "option_choices"
             if (user_input == "M" or user_input == "m"):
                 main()
+
             elif current_header == "no_head":
                 choice_display = ""
+
                 if len(user_input.strip()) == 0:
                     choice_display = "no entry"
+
                 else:
                     choice_display = user_input
 
@@ -179,6 +191,7 @@ def validate_choice(user_input, option_choices,
 
             else:
                 choice_display = user_input
+
                 # if input sent is blank when whitespace removed
                 if len(user_input.strip()) == 0:
                     choice_display = "no entry"
@@ -188,18 +201,21 @@ def validate_choice(user_input, option_choices,
                                  f"You chose {choice_display}.")
 
     except ValueError as e:
-        # terminal_clear()
+
         if current_header == "Renterprise":
             return main_menu_init(error=e)
+
         elif current_header == "Search Customer":
             create_header_title("Search Customer")
             return search_customer(error=e)
+
         else:
             create_header_title(current_header, current_header_theme)
             cprint("{:-^80}".format(""), "red")
             cprint("{:-^80}".format(f"ERROR: {e}"), "red")
             cprint("{:-^80}".format(""), "red")
             return False
+
     return True
 
 
@@ -210,21 +226,20 @@ def validate_input_string(input_prompt, input_from=None,
     - This means the function keeps running until the input is successful
     - Create input, wait for it to be valid, then return the value
     - It checks the input for a blank input, otherwise it is OK.
-    - It uses a value sent to the function to create the prompt
+    - It uses a value sent to the function to create the prompt with
+      the "input_prompt" value
     """
     while True:
         try:
             input_string = input(input_prompt)
+
             # if input sent is blank when whitespace removed
             if (len(input_string.strip()) == 0 and
                     input_from not in APPROVED_BLANKS):
-
                 raise ValueError("Input cannot be left blank.")
 
             elif (len(input_string.strip()) == 0 and
                     input_from in APPROVED_BLANKS):
-
-                terminal_clear()
                 create_header_title(f"{selected_customer.fname} "
                                     f"{selected_customer.lname}")
                 selected_customer.customer_display()
@@ -235,19 +250,23 @@ def validate_input_string(input_prompt, input_from=None,
                 if input_from == "fname":
                     cprint("Enter customer first name : No Update",
                            "green")
+
                 elif input_from == "lname":
                     cprint("Enter customer first name : "+previous_value,
                            "green")
                     cprint("Enter customer surname : No Update",
                            "green")
+
                 elif input_from == "address":
                     cprint("Enter first line of address : No Update",
                            "green")
+
                 elif input_from == "postcode":
                     cprint("Enter first line of address : "+previous_value,
                            "green")
                     cprint("Enter customer postcode : No Update",
                            "green")
+
                 return "EmptyOK"
 
         except ValueError as e:
@@ -255,6 +274,7 @@ def validate_input_string(input_prompt, input_from=None,
             if input_from == "search_customer":
                 create_header_title("Search Customer")
                 return search_customer(e, choice_input)
+
             else:
                 cprint("{:-^80}".format(""), "red")
                 cprint("{:-^80}".format(f"ERROR: {e}"), "red")
@@ -268,36 +288,56 @@ def validate_input_string(input_prompt, input_from=None,
                     (input_string == "M" or input_string == "m")):
                 create_header_title("Search Customer")
                 return search_customer()
+
             else:
                 return input_string
 
 
 def validate_date(order_selection, date_string, compare_date=None):
+    """
+    - Used where any dates need validating.
+    - Can check if it is a valid input as compared to the provided format.
+    - Can check if the date is before today.
+    - Will determine if a date is after another date. eg. Collection has
+      to be after delivery.
+    """
     try:
         today = datetime.now()
         date_format = '%d/%m/%Y'
-
         date_from_string = datetime.strptime(date_string, date_format)
+
+        # Check if there is a date created from the string provided.
         if date_from_string:
+            # Checks that the date is after today
             if today > date_from_string:
                 raise ValueError("Date cannot be before today")
+
+            # This converts a second date string for comparison
             if compare_date:
                 compare_date_from_string = datetime.strptime(compare_date,
                                                              date_format)
+
                 if compare_date_from_string > date_from_string:
                     raise ValueError("Collection cannot be before delivery")
 
             terminal_clear()
             display_order_date_choose(order_selection)
+
             if compare_date:
                 cprint("Enter a delivery date : "+compare_date, "green")
                 cprint("Enter a collection date : "+date_string, "green")
+
             else:
                 cprint("Enter a delivery date : "+date_string, "green")
+
             return date_from_string
+
     except ValueError as e:
+
+        # Displaying the errors where necessary
         terminal_clear()
         display_order_date_choose(order_selection)
+
         if compare_date:
             cprint("Enter a delivery date : "+compare_date, "green")
 
@@ -306,16 +346,23 @@ def validate_date(order_selection, date_string, compare_date=None):
             cprint("{:-^80}".format(
                 f"ERROR: Date must be entered as above "), "red")
             cprint("{:-^80}".format(""), "red")
+
         else:
             cprint("{:-^80}".format(""), "red")
             cprint("{:-^80}".format(f"ERROR: {e} "), "red")
             cprint("{:-^80}".format(""), "red")
+
         return False
+
     return True
 
 
 def display_success_and_fail_cards():
-
+    """
+    - Quick function just to display the dummy payment cards
+    - Each one has a different display purpose.
+    - Only one will provide a successful payment
+    """
     hash_string = "###############"
     space_string = "           "
     short_hash = "##"
@@ -374,21 +421,21 @@ def multiline_display_printer(display_list, colour=None):
 def search_worksheet(search_this, search_value=None,
                      search_columns=None, search_mod=None):
     """
-    The function is the main initiator to get a Customer object.
-    - When "customers" worksheet is searched, it will return the
-    customer ids directly.
-    - "items" worksheet does not need to be searched, as the item_id
-    is also stored in the "orders" worksheet. It can be searched
-    later when more information is required. Which is when a customer
-    is selected.
-    - "invoices" worksheet requires taking the order_id from the
-    invoice, then searching the "orders" worksheet to get the
-    customer_id. It can then use this value to get customer data.
-    *** To be added ***
-    - When an ID is searched, it needs to be precise, if it is a more
-    flexible string (name, address, postcode) it should use a "like"
-    statement rather than "equal". eg. Search for "Red" could get
-    "Red","Redgrave","Bored" as these all contain "red".
+    - Used as a way of combining any times that find/findAll is required
+    using gspread.
+    - If search_mod is not defined then it is used for customer_search
+    and it has variants based on what is the search criteria, eg.
+    Customer Number, Invoice Number, Order Number.
+    - If the search relates to customer details, it will search the table
+    directly.
+    - When customer data is required. The search requires to work it's way to
+    customer data.
+    eg. Invoice Number search takes this route :
+        Invoice Number, gets Order Number, which gets customer number from the
+        order table and puts it into a list of customer numbers.
+    - Once this list of ids is collected (could also only be one), it iterates
+    through and gets the rest of the customer data and creates a "Customer"
+    dictionary from it.
     """
     search_results = []
     print(f"Searching {search_this.capitalize()}.....")
@@ -400,25 +447,27 @@ def search_worksheet(search_this, search_value=None,
             values = search_worksheet.findall(search_value,
                                               in_column=x,
                                               case_sensitive=False)
-            # If customers table is being searched, get data and insert
-            # directly
+
+            # Direct "customers" sheet search
             if search_this == "customers":
                 for y in values:
                     row = search_worksheet.row_values(y.row)
                     search_results.append(row)
+
+            # "orders" or "invoices" to search
             elif search_this == "orders" or search_this == "invoices":
-                # Get customer_id from "orders", then add to
-                # customer_id_list. Use this list to search "customers".
-                # Then return customer data
                 customer_id_list = []
+                # get customer_id from the "orders" table and send to list
+                # for later search
                 if search_this == "orders":
                     for y in values:
                         row = search_worksheet.row_values(y.row)
                         customer_id = row[1]
                         customer_id_list.append(customer_id)
-                # Get order_id from "invoices", to then get customer_id
-                # from "orders". Then create a customer_id_list, which can
-                # be used to search "customers" (at "for z in")
+
+                # get order_id from "invoices" then get customer_id, using
+                # the order_id. Then put the customer_id into the list for
+                # later search
                 if search_this == "invoices":
                     for y in values:
                         order_sheet = SHEET.worksheet("orders")
@@ -430,6 +479,7 @@ def search_worksheet(search_this, search_value=None,
                         order_values = order_sheet.row_values(order_row.row)
                         customer_id = order_values[1]
                         customer_id_list.append(customer_id)
+
                 # Use the customer_id_list generated from searching "invoices"
                 # or "orders" to search "customers" for customer data.
                 # Then return the customer data
@@ -443,27 +493,31 @@ def search_worksheet(search_this, search_value=None,
                                                 customer_values.row)
                     search_results.append(customer_row)
 
+        # Return feedback for no result and rerun the
+        # search_customer function
         if len(search_results) == 0:
-            # terminal_clear()
             create_header_title("Search Customer", "red")
             cprint("{:-^80}".format(""), "red")
             cprint("{:-^80}".format("ERROR: No Customer Found."), "red")
             cprint("{:-^80}".format(""), "red")
             print("")
-
             return search_customer()
+
         else:
             print("Search Complete")
             print("{:-^80}".format(""))
             return search_results
 
+    # - When other searches are required, search_mod is used to redirect the
+    # function to other searches
+    # - "view_orders" creates Order dictionaries and Item dictionaries from
+    # search results
     elif search_mod == "view_orders":
         order_result = []
         for x in search_columns:
             values = search_worksheet.findall(search_value,
                                               in_column=x,
                                               case_sensitive=False)
-
             for y in values:
                 row = search_worksheet.row_values(y.row)
                 order_object = Order(row[0], row[1], row[2], row[3],
@@ -482,30 +536,31 @@ def search_worksheet(search_this, search_value=None,
             if len(order_result) == 0:
                 selected_customer.customer_display(
                         where_from="no_orders_found")
+
             else:
                 return order_result
+
+    # "get_items" creates Item objects from the search results
     elif search_mod == "get_items":
         get_items_list = SHEET.worksheet(search_this).get_all_values()
         items_list = []
         types_list = []
-
         for x in get_items_list:
             if x[0] != "item_id":
                 item_type = x[1]
                 this_item_object = Item(
                                         x[0], x[1], x[2],
                                         x[3], x[4], x[5],
-                                        x[6], x[7], x[8]
-                                    )
-
+                                        x[6], x[7], x[8])
                 items_list.append(this_item_object)
-
                 if (item_type not in types_list and
                         item_type != "item_type"):
-
                     types_list.append(item_type)
 
         return items_list, types_list
+
+    # repair searches the "items" sheet for any data in the item_repair
+    # column. Removes the first index as that is the header
     elif search_mod == "repair":
         values = search_worksheet.col_values(8)
         repair_list = []
@@ -516,7 +571,6 @@ def search_worksheet(search_this, search_value=None,
             counter += 1
 
         repair_list.pop(0)
-
         return repair_list
 
 
@@ -525,6 +579,8 @@ def addin_selected_worksheet(data, worksheet):
     Add data to the worksheet sent to the function.
     - After creating a new row to be added. This function will append
     the newly created row to the defined worksheet.
+    - Provides feedback to the user when the process starts and when
+    the process is complete
     """
     print(f"Adding to {worksheet.capitalize()}..... ")
     add_worksheet = SHEET.worksheet(worksheet)
@@ -535,8 +591,10 @@ def addin_selected_worksheet(data, worksheet):
 
 def update_selected_worksheet(identifier, data, columns, worksheet):
     """
-    Use data sent to function, a list, and update the cells also defined
+    - Use data sent to function, a list, and update the cells also defined
     by a list, to change data on a row already created
+    - Provides feedback to the user when the process starts and when
+    the process is complete
     """
     if worksheet == "repairs":
         print(f"Updating Items..... ")
@@ -568,7 +626,7 @@ def update_selected_worksheet(identifier, data, columns, worksheet):
 
 def create_new_customer():
     """
-    - Creating a new customer will comprise of inputs one after the other
+    - Creating a new customer comprises of inputs one after the other
     - It has to be flexible as a "name" can be a company.
     - This makes validation harder due to numbers being possibly required.
     - However, validation can be based on total inputs or input length
@@ -587,28 +645,25 @@ def create_new_customer():
     customer_id = "PT3-C"+str(customers_length)
     customer_data = [customer_id, fname_input, lname_input,
                      address_input, postcode_input]
+
+    # Assign the global variable for selected_customer into a Customer
+    # dictionary
     selected_customer = Customer(customer_id, fname_input, lname_input,
                                  address_input, postcode_input)
+
+    # Move to customer display with the selected_customer dictionary
     if addin_selected_worksheet(customer_data, "customers"):
-        # Here need to move to customer display
+
         selected_customer.customer_display()
         customer_options_menu()
 
 
 def search_customer(error=None, choice=None):
     """
-    - Need to define how a search wants to be made.
-    - 1. Name (search first and last)
-    - 2. Address (whole string search)
-    - 3. Postcode
-    - 4. Customer No. (by the customer_id, eg.PT3-C1)
-    - 5. Order (by the order_id, eg.PT3-O1)
-    - 6. Invoice (by the invoice_id, eg.PT3-I1)
-    - 7. Item (by the item_id, eg.PT3-SN1)validate_choice
-    - Then run the user choice through the validator based
-      on choices sent in the array (1-7)
+    - Search customer uses different search criteria based on choice made.
+    - Each choice validates the input first and if valid it will return the
+    input string. If this occurs, it knows to then search the Sheets.
     """
-
     while True:
         search_data = []
         search_num = ""
@@ -626,11 +681,13 @@ def search_customer(error=None, choice=None):
             "5. Order Number (Starts. PT3-O*)",
             "6. Invoice Number (Starts. PT3-I*)",
             "7. Item Number (Starts. PT3-SN*)"])
+
         if error:
             cprint("{:-^80}".format(f"ERROR: {error}"), "red")
 
         if choice:
             customer_search_input = choice
+
         else:
             customer_search_input = input("Customer Search Choice : ")
 
@@ -688,7 +745,8 @@ def search_customer(error=None, choice=None):
                 search_sheet = "invoices"
                 search_cols = [1]
                 search_num = validate_input_string(
-                    "Enter invoice number : ", "search_customer",
+                    "Enter invoice number : ",
+                    "search_customer",
                     customer_search_input,
                     "search_invoice")
 
@@ -701,6 +759,8 @@ def search_customer(error=None, choice=None):
                     customer_search_input,
                     "search_item")
 
+        # This is the validation and will only search the sheets if
+        # it exists
         if search_num:
             search_data = search_worksheet(search_sheet,
                                            search_num,
@@ -712,18 +772,21 @@ def search_customer(error=None, choice=None):
             global selected_customer
 
             if search_data:
+                # If it only finds 1 result, automatically assign the
+                # selected_customer to this result
                 if len(search_data) == 1:
                     selected_customer = Customer(search_data[0][0],
                                                  search_data[0][1],
                                                  search_data[0][2],
                                                  search_data[0][3],
                                                  search_data[0][4])
-                    # Here need to move to customer display
                     create_header_title(f"{selected_customer.fname} "
                                         f"{selected_customer.lname}")
                     selected_customer.customer_display()
 
                 else:
+                    # Display matches in a table and prompt the
+                    # user to choose
                     customer_select_number = 1
                     customer_select_options = []
                     found_customers = []
@@ -749,6 +812,8 @@ def search_customer(error=None, choice=None):
 
                     table = SingleTable(table_data, "Customers")
                     print(table.table)
+                    # This function is when the customer will be selected
+                    # when a choice is required
                     display_found_customers(customer_select_options,
                                             found_customers)
 
@@ -757,7 +822,13 @@ def search_customer(error=None, choice=None):
 
 
 def item_repair():
-
+    """
+    - The items in need of repairing are displayed here
+    - Uses the "search_mod" to perform a particular search definer in
+    the search_worksheet function
+    - It reformats the date to UK display style (date/month/year)
+    - Puts the items into a table for display
+    """
     repair_data = search_worksheet("items",
                                    search_mod="repair")
     counter = 1
@@ -768,6 +839,8 @@ def item_repair():
             (colored("{:^30}".format("Item"), "blue")),
             (colored("{:^15}".format("Date Booked"), "blue"))]]
 
+    # Here date is reformatted for a more localised display and added to
+    # a list of table data
     for x in repair_data:
         repair_date = datetime.strptime(x[7], '%Y/%m/%d')
         repair_date_format = (
@@ -782,23 +855,27 @@ def item_repair():
         counter += 1
 
     table = SingleTable(table_data)
-
     table.inner_heading_row_border = True
     table.inner_row_border = True
     print(table.table)
-
     no_of_items = len(repair_data)
 
+    # When no items need repairing, send back to main menu with
+    # a prompt that says where the user had come from.
+    # Also provides feedback that no results found. Then performs
+    # a "loading" sequence in the terminal.
     if no_of_items == 0:
         cprint("{:-^80}".format(""), "green")
         cprint("{:-^80}".format(
-            " No items to repair, returning to Main Menu"), 
+            " No items to repair, returning to Main Menu"),
             "green")
         cprint("{:-^80}".format(""), "green")
         loading = TerminalLoading()
         loading.display_loading(7, "yellow")
         main_menu_init(" Returned from repair ", "yellow")
 
+    # If only one found, the input requests a Yes/No response to
+    # repair the one and only item.
     if no_of_items == 1:
         cprint("{:-^80}".format(" Y/Yes/N/No "), "yellow")
         repair_input = input("Would you like to repair Item ID "
@@ -809,6 +886,7 @@ def item_repair():
                  "No", "N", "no", "n"],
                 "no_head")
 
+        # Feedback given letting the user know repairs are taking place.
         if repair_select:
             cprint("{:-^80}".format(""), "yellow")
             cprint("{:-^80}".format(
@@ -821,12 +899,13 @@ def item_repair():
             loading.display_loading(7, "yellow")
             main_menu_init(" Returned from successful repair ", "yellow")
 
+    # When there is more than one item found. The choice needs to be based on
+    # its order in a list. If a successful choice is made then it will inform
+    # the user of the updating process and return them to the menu.
     if no_of_items > 1:
-
         repair_range_ints = [*range(1, (no_of_items+1), 1)]
         repair_strings = map(str, repair_range_ints)
         repair_range = (list(repair_strings))
-
         repair_choice = input("Choose an item to repair : ")
 
         if validate_choice(repair_choice, repair_range,
@@ -845,9 +924,11 @@ def item_repair():
 
 
 def display_found_customers(customer_select_options, found_customers):
+    """
+    - The function that displays the customer data.
+    """
     while True:
         global selected_customer
-
         customer_select_input = input(
                         f"Choose an option from 1 "
                         f"to {len(customer_select_options)} : ")
@@ -859,8 +940,6 @@ def display_found_customers(customer_select_options, found_customers):
             print(customer_choice_index)
             selected_customer = found_customers[
                     customer_choice_index]
-
-            # terminal_clear()
             create_header_title(f"{selected_customer.fname} "
                                 f"{selected_customer.lname}")
             selected_customer.customer_display()
@@ -873,11 +952,6 @@ def customer_options_menu():
     Customer Options
     - Here the user can select from options 1-5 and based on their feedback
     will perform the selected option.
-    1 = New Order
-    2 = View Orders
-    3 = Change Name
-    4 = Change Address
-    5 = Return To Menu
     """
     while True:
         customer_option_input = input("Choose Menu Option : ")
@@ -888,23 +962,19 @@ def customer_options_menu():
             print("Where multiple fields are present, "
                   "leave blank to exclude from update")
 
-            update_data = []
-            cells_to_update = []
-
-            # Create New Order
+            # Create new order
             if customer_option_input == "1":
                 items_list, types_list = search_worksheet("items",
                                                           None,
                                                           None,
                                                           "get_items")
-                # terminal_clear()
                 create_header_title(f"{selected_customer.fname} "
                                     f"{selected_customer.lname}")
                 selected_customer.customer_display()
                 add_new_order(items_list, types_list)
                 break
 
-            # Change Name
+            # View orders
             elif customer_option_input == "2":
                 search_sheet = "orders"
                 search_cols = [2]
@@ -915,6 +985,9 @@ def customer_options_menu():
                                                  "view_orders")
                 view_customer_orders(search_orders)
 
+            # Change name.
+            # Validates for an empty field, if it is empty it signifies
+            # that the user does not want to update this field.
             elif customer_option_input == "3":
                 fname_input = (
                     validate_input_string("Enter customer first name : ",
@@ -925,7 +998,6 @@ def customer_options_menu():
                                           fname_input))
 
                 if fname_input == "EmptyOK" and lname_input == "EmptyOK":
-                    # terminal_clear()
                     create_header_title(f"{selected_customer.fname} "
                                         f"{selected_customer.lname}")
                     selected_customer.customer_display(
@@ -948,6 +1020,8 @@ def customer_options_menu():
                     selected_customer.lname = lname_input
 
             # Change Address
+            # Validates for an empty field, if it is empty it signifies
+            # that the user does not want to update this field.
             elif customer_option_input == "4":
 
                 address_input = (
@@ -993,7 +1067,6 @@ def customer_options_menu():
                                           update_data,
                                           cells_to_update,
                                           "customers")
-                # terminal_clear()
                 create_header_title(f"{selected_customer.fname} "
                                     f"{selected_customer.lname}")
                 selected_customer.customer_display(where_from="from_update")
@@ -1002,41 +1075,44 @@ def customer_options_menu():
 
 
 def view_customer_orders(order_data):
-    # ON(1): PT3-01, CN(2): PT3-CN01, IN(3): PT3-SN29, 1ST(4): £100.00
-    # PERWEEK(5): £40.00, START(6): 11/11/2023, END(7): 20/11/2023
-    # ITEMTYPE(1):Bed, ITEM NAME(2): Hospital Bed
-    # This is required as a global outside the function.
-    # Only one customer can be worked with at a time and it is
-    # required to be manipulated in several areas
-    #
+    """
+    - Function to display orders in a table
+    """
     global selected_order
     global selected_item
-    # terminal_clear()
+
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}")
+
+    # If data is found, otherwise feedback needs to providing where
+    # no orders are found.
     if order_data:
         found_orders = []
         found_items = []
+
+        # If only one result found, load the order rather
+        # than make the user choose from one option only
         if len(order_data) == 1:
             for order in order_data:
                 selected_order = order[0]
                 selected_item = order[1]
 
+            # Reload the customer screen to clear unnecessary data.
+            # Then uses the selected Order and Item to display the order
+            # details below.
             selected_customer.customer_display(selected_order.order_id,
                                                "selected_order")
-
             selected_order.order_display(selected_item)
-        
+
+        # Display the choices in a table for the user to pick from.
         else:
             order_select_number = 1
             order_select_options = []
             selected_customer.customer_display(where_from="view_orders")
-
             table_data = [['', 'Order ID', 'Item',
                            'Start Date', 'End Date']]
 
             for order in order_data:
-
                 table_data.append([order_select_number,
                                    order[0].order_id,
                                    order[1].item_name,
@@ -1051,6 +1127,8 @@ def view_customer_orders(order_data):
             table = SingleTable(table_data, "Orders")
             print(table.table)
 
+            # Request user input for which order to display.
+            # Successful input validation will display the order.
             while True:
                 order_select_input = input(
                                 f"Choose an option from 1 "
@@ -1062,9 +1140,6 @@ def view_customer_orders(order_data):
                     order_choice_index = int(order_select_input) - 1
                     selected_order = found_orders[order_choice_index]
                     selected_item = found_items[order_choice_index]
-
-                    # Here need to move to order display
-                    # terminal_clear()
                     create_header_title(f"{selected_customer.fname} "
                                         f"{selected_customer.lname}")
                     selected_customer.customer_display(selected_order.order_id,
@@ -1073,6 +1148,8 @@ def view_customer_orders(order_data):
                     break
 
     else:
+        # When therre are no orders to display, refresh the customer
+        # screen and display a prompt to say none found.
         create_header_title(f"{selected_customer.fname} "
                             f"{selected_customer.lname}")
         selected_customer.customer_display()
@@ -1084,14 +1161,9 @@ def view_customer_orders(order_data):
 
 def order_options_menu():
     """
-    Customer Options
     - Here the user can select from options 1-5 and based on their feedback
-    will perform the selected option.
-    1 = Despatches
-    2 = Finance
-    3 = End Agreement
-    4 = Customer Options (back to previous, without order display)
-    5 = Main Menu
+    will perform the selected option. Which are based on the selected
+    order, returning back to the previous menu choices, or to the main menu
     """
     order_option_input = input("Choose Option : ")
 
@@ -1101,9 +1173,6 @@ def order_options_menu():
                        "customer"):
         print("Where multiple fields are present, "
               "leave blank to exclude from update")
-
-        update_data = []
-        cells_to_update = []
 
         # Change Name
         if order_option_input == "1":
@@ -1128,6 +1197,13 @@ def order_options_menu():
 
 
 def add_new_order(items_list, types_list):
+    """
+    - This is the function based on option 1 in the customer options menu
+    - Initially presenting the types of items on offer. Then refining it
+    into which item of that type is to be chosen.
+        - eg. Scooter -> Blue Mobility Scooter
+    - This first part is the initial step of choosing a type.
+    """
     type_choices_end = (len(types_list)+1)
     type_header_list = []
     type_value_list = []
@@ -1140,16 +1216,15 @@ def add_new_order(items_list, types_list):
     for b in types_list:
         type_value_list.append(colored(str(b).center(12), "yellow"))
 
+    # Add the headers then the data to the table data
     type_list_data.append(list(type_header_list))
     type_list_data.append(list(type_value_list))
-
     cprint("{:-^80}".format(" Choose Item To Order "), "yellow")
-
     type_table_data = [list(type_header_list), list(type_value_list)]
-
     type_table = SingleTable(type_table_data)
     print(type_table.table)
 
+    # while loop to wait for a valid entry to be made for the type of order
     while True:
         order_type_select = input("Choose type of item to order : ")
         order_type_range_ints = [*range(1, type_choices_end, 1)]
@@ -1159,19 +1234,27 @@ def add_new_order(items_list, types_list):
         if validate_choice(order_type_select,
                            order_type_range,
                            "no_head"):
-
+            # turn the input to an int. Then - 1, to ensure the choice
+            # number matches to the list index
             type_chosen = types_list[(int(order_type_select)-1)]
 
+            # items_list is all the items in the "items" sheet.
+            # It goes through each item to see if it's type matches
+            # if it does, add it to a list to be used further on.
             items_matched = []
             for c in items_list:
                 if c.item_type == type_chosen:
                     items_matched.append(c)
 
+            # This determines how many unique items there are in this list eg.
+            # X, X, X, X, Y, Y, Y just becomes X, Y
             unique_items = set(d.item_name for d in items_matched)
 
             option_counter = 1
             item_table_data = [['', 'Item', 'Initial Cost',
                                     'Weekly Cost', 'Total']]
+            # This takes each unique item (X, Y), and begins to generate
+            # a count for each one and gets the costs for it.
             for e in unique_items:
                 counter = 0
                 start_cost = ""
@@ -1188,13 +1271,21 @@ def add_new_order(items_list, types_list):
                                         week_cost,
                                         counter])
                 option_counter += 1
-
+            # Issue the request to do the next function in the sequence.
+            # This also breaks the while loop.
             return order_option_chooser(item_table_data,
                                         option_counter,
                                         items_matched)
 
 
 def order_option_chooser(item_table_data, option_counter, full_matched_list):
+    """
+    The function starts by refreshing the display. Putting in the header
+    again, refreshing the customer display and then showing the itemws that
+    can be chosen.
+    Then validate the choice the user makes and request to run the next
+    function when the choice is valid.
+    """
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}")
     selected_customer.customer_display()
@@ -1204,12 +1295,13 @@ def order_option_chooser(item_table_data, option_counter, full_matched_list):
     print(order_options_table.table)
 
     while True:
-
         order_item_select = input("Choose item to order : ")
         order_item_range = [*range(1, option_counter, 1)]
         range_to_string = map(str, order_item_range)
         item_string_range = (list(range_to_string))
 
+        # If validated, move to the next step, which is a function
+        # that holds a series of functions
         if validate_choice(order_item_select,
                            item_string_range,
                            "no_head"):
@@ -1222,7 +1314,10 @@ def order_option_chooser(item_table_data, option_counter, full_matched_list):
 
 
 def display_order_date_choose(order_selection):
-
+    """
+    -Initiate the display that has the guidance when choosing a date
+    in the program.
+    """
     create_header_title(f"{selected_customer.fname} "
                         f"{selected_customer.lname}",
                         "new_order")
@@ -1240,6 +1335,10 @@ def display_order_date_choose(order_selection):
 
 
 def new_order_start_date(order_selection):
+    """
+    Take an input and throw the value to the validate_date
+    function.
+    """
     while True:
         start_date_input = input("Enter a delivery date : ")
         if validate_date(order_selection, start_date_input):
@@ -1247,6 +1346,10 @@ def new_order_start_date(order_selection):
 
 
 def new_order_end_date(order_selection, start_date):
+    """
+    Take an input and throw the value to the validate_date
+    function.
+    """
     while True:
         end_date_input = input("Enter a collection date : ")
         if validate_date(order_selection, end_date_input, start_date):
@@ -1278,7 +1381,6 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
         # item_name list index and in selected item for order
         if x.item_name == order_selection[1]:
             #  if true, on any of these, the item is not available
-
             if x.item_deliver and x.item_collect:
                 deliveries = x.item_deliver.split(", ")
                 collections = x.item_deliver.split(", ")
@@ -1306,7 +1408,9 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
     item_choice_table = SingleTable(available_items_list)
     item_choice_table.inner_row_border = True
     print(item_choice_table.table)
-    
+
+    # The while loop to ensure a valid entry is made that can be used in
+    # the next function
     while True:
         item_select_input = input("Choose item to order : ")
         item_range = [*range(1, item_counter, 1)]
@@ -1316,11 +1420,8 @@ def check_chosen_despatch_dates(start_date_string, end_date_string,
         if validate_choice(item_select_input,
                            item_string_range,
                            "no_head"):
-            # print(type(item_select_input))
-
             # Index is +1, as Index 0 is the table headers.
             chosen_id = available_items_list[int(item_select_input)][1]
-
             for x in full_matched_list:
                 if x.item_id == chosen_id:
                     selected_item = x
@@ -1410,11 +1511,15 @@ def finalise_order_and_payment(get_item, start_date,
 
 
 def save_new_order(start_date, end_date, payment_amounts):
-
+    """
+    - Here the data is collected together and put into lists to be saved
+    for the orders and invoices sheets.
+    - The "items" sheet is updated rather than added into. So it only
+    requires partial data and not a whole row.
+    """
     # ORDERS DATA
     orders_length = SHEET.worksheet("orders").row_count
     order_id = "PT3-O"+str(orders_length)
-
     start_datetime = datetime.strptime(start_date, '%d/%m/%Y')
     end_datetime = datetime.strptime(end_date, '%d/%m/%Y')
     save_start = (f"{start_datetime.year}/"
@@ -1437,7 +1542,6 @@ def save_new_order(start_date, end_date, payment_amounts):
     invoice_id = "PT3-I"+str(invoices_length)
     today = datetime.now()
     save_today = f"{today.year}/{today.month}/{today.day}"
-
     invoice_data = [invoice_id,
                     order_id,
                     save_today,
@@ -1448,45 +1552,39 @@ def save_new_order(start_date, end_date, payment_amounts):
     delivery_list = []
     collection_list = []
     income = 0.00
-
     get_item_cell = SHEET.worksheet("items").find(selected_item.item_id,
                                                   in_column=1,
                                                   case_sensitive=False)
     row_id = get_item_cell.row
-
     get_header_row = SHEET.worksheet("items").row_values(1)
     get_item_row = SHEET.worksheet("items").row_values(row_id)
 
-    """
-    If the length of the item row obtained is less than the length
-    it should be, (ie. when no dates for delivery/collection/repair,
-    or income is on an item) the system needs to make the list the
-    correct length
-    """
-
+    # If the length of the item row obtained is less than the length
+    # it should be, (ie. when no dates for delivery/collection/repair,
+    # or income is on an item) the system needs to make the list the
+    # correct length
     if len(get_header_row) > len(get_item_row):
         while len(get_item_row) < len(get_header_row):
             get_item_row.append('')
 
     if get_item_row[5]:
         delivery_list = get_item_row[5].split(", ")
+
     if get_item_row[6]:
         collection_list = get_item_row[6].split(", ")
 
     delivery_list.append(save_start)
     collection_list.append(save_end)
-
     delivery_list = ", ".join(delivery_list)
     collection_list = ", ".join(collection_list)
 
     if get_item_row[8]:
         income = float(get_item_row[8].strip("£"))
+
     income += float(payment_amounts[2])
     income = "£"+'{0:.2f}'.format(income)
-
     item_data = [delivery_list, collection_list, income]
     item_columns = [6, 7, 9]
-
     # Add order to table
     if addin_selected_worksheet(order_data, "orders"):
         # Add invoice to table
@@ -1502,14 +1600,20 @@ def save_new_order(start_date, end_date, payment_amounts):
 
             else:
                 print("Error in update Items")
+
         else:
             print("Error in add invoice")
+
     else:
         print("Error in add order")
 
 
 def create_new_order(order_selection, orders_available, full_matched_list):
 
+    """
+    This is a collection of functions within one to manage the ordering of
+    functions through the adding an order process.
+    """
     display_order_date_choose(order_selection)
     start_date = new_order_start_date(order_selection)
     end_date = new_order_end_date(order_selection, start_date)
@@ -1527,11 +1631,7 @@ def create_new_order(order_selection, orders_available, full_matched_list):
 
 
 def main():
-    """
-    INITIATE THE PROGRAM.
-    - Display the header.
-    - Load the main menu, to provide the first options
-    """
+    # INITIATE THE PROGRAM.
     main_menu_init()
 
 
