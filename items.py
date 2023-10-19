@@ -23,7 +23,10 @@ class Item:
 
     def item_confirmation_display(self, start_date, end_date,
                                   payment_amounts, selected_customer):
-
+        """
+        This takes all the data sent from the "selected_item" global
+        variable and extra data to display it in a table.
+        """
         item_data = [
             [
                 (colored("{:<20}".format("Customer ID"), "cyan")),

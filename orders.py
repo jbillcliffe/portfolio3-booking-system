@@ -20,7 +20,10 @@ class Order:
         self.end_date = end_date
 
     def order_display(self, order_item):
-
+        """
+        Takes the data sent which is the Order itself and also an Item
+        dictionary to display an order when inside the customer display.
+        """
         table_data = [['Order Details', ' ',
                        'Item Details', ' ']]
         table_data = [

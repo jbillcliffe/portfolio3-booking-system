@@ -18,8 +18,11 @@ class Customer:
 
     def customer_display(self, order_id=None, where_from=None):
         """
-        Use the selected_customer to load the customer data into a formatted
-        terminal window
+        -Use the selected_customer to load the customer data into a formatted
+        terminal window. When order_id is included it will be for user
+        feedback.
+        -The where_from changes the Options menu on the customer display to
+        make the display have different menu options.
         """
         table_data = [
             [
