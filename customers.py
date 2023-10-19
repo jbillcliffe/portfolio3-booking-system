@@ -54,7 +54,7 @@ class Customer:
         if (where_from == "view_orders" or where_from == "selected_order"):
             order_options = ["Despatches",
                              "Finance",
-                             "End Agreement",
+                             "Take Payment",
                              "Customer Options",
                              "Main Menu"]
 

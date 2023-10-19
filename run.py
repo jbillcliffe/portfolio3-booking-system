@@ -108,7 +108,7 @@ def main_menu_init(prompt=None, colour="yellow", error=None):
     - When validation is complete, run the function which relates to
       the user input that has been made
     - "prompt" and "error" can be sent to the function. If present then the
-      function will use cprint to display these messages
+      function will use cprint to display these messagesmain_menu_init
     """
     while True:
         create_header_title("Renterprise")
@@ -1058,7 +1058,7 @@ def customer_options_menu():
 
             # Return to menu
             elif customer_option_input == "5":
-                main()
+                main_menu_init(" Returning from customer ", "yellow")
                 break
 
             # Send data to be updated
@@ -1177,23 +1177,34 @@ def order_options_menu():
         # Change Name
         if order_option_input == "1":
             print("Despatches")
+            book_new_despatch_dates(selected_order)
 
         elif order_option_input == "2":
             print("Finance")
+            get_invoice_history(selected_order)
 
         elif order_option_input == "3":
-            print("End Agreement")
+            print("Take Payment")
+            take_customer_payment(selected_order)
         # Change Address
         elif order_option_input == "4":
-            print("Customer Options")
-            # terminal_clear()
             create_header_title(f"{selected_customer.fname} "
                                 f"{selected_customer.lname}")
             selected_customer.customer_display()
             customer_options_menu()
         # Return to menu
         elif order_option_input == "5":
-            main()
+            main_menu_init(" Returning from customer ", "yellow")
+
+
+def book_new_despatch_dates(selected_order):
+    print("new despatch dates")
+
+def get_invoice_history(selected_order):
+    print("get invoice history")
+
+def take_customer_payment(selected_order):
+    print("Take some money")
 
 
 def add_new_order(items_list, types_list):
