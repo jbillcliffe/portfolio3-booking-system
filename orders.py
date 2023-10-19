@@ -4,6 +4,8 @@
 from termcolor import colored, cprint
 from terminaltables import SingleTable
 from items import Item
+from datetime import datetime
+from datetime import date
 
 
 class Order:
@@ -24,6 +26,13 @@ class Order:
         Takes the data sent which is the Order itself and also an Item
         dictionary to display an order when inside the customer display.
         """
+        get_delivery = datetime.strptime(self.start_date, '%Y/%m/%d')
+        get_collection = datetime.strptime(self.end_date, '%Y/%m/%d')
+        new_delivery = (f"{get_delivery.day}/{get_delivery.month}/"
+                        f"{get_delivery.year}")
+        new_collection = (f"{get_collection.day}/{get_collection.month}/"
+                          f"{get_collection.year}")
+
         table_data = [['Order Details', ' ',
                        'Item Details', ' ']]
         table_data = [
@@ -39,12 +48,12 @@ class Order:
                 ((colored(order_item.item_name, "green"))).rjust(33)],
             [
                 ("Start Date").ljust(17),
-                ((colored(self.start_date, "cyan"))).rjust(19),
+                ((colored(new_delivery, "cyan"))).rjust(19),
                 ("Item Type").ljust(12),
                 ((colored(order_item.item_type, "green"))).rjust(33)],
             [
                 ("End Date").ljust(17),
-                ((colored(self.end_date, "cyan"))).rjust(19),
+                ((colored(new_collection, "cyan"))).rjust(19),
                 ("Item Income").ljust(12),
                 ((colored(order_item.item_income, "green"))).rjust(33)]
         ]

@@ -984,6 +984,7 @@ def customer_options_menu():
                                                  search_cols,
                                                  "view_orders")
                 view_customer_orders(search_orders)
+                break
 
             # Change name.
             # Validates for an empty field, if it is empty it signifies
@@ -1060,7 +1061,6 @@ def customer_options_menu():
             elif customer_option_input == "5":
                 main_menu_init(" Returning from customer ", "yellow")
                 break
-
             # Send data to be updated
             if len(update_data) > 0:
                 update_selected_worksheet(selected_customer.customer_id,
@@ -1113,11 +1113,21 @@ def view_customer_orders(order_data):
                            'Start Date', 'End Date']]
 
             for order in order_data:
+                get_delivery = datetime.strptime(order[0].start_date,
+                                                 '%Y/%m/%d')
+                get_collection = datetime.strptime(order[0].end_date,
+                                                   '%Y/%m/%d')
+                new_delivery = (f"{get_delivery.day}/{get_delivery.month}/"
+                                f"{get_delivery.year}")
+                new_collection = (f"{get_collection.day}/"
+                                  f"{get_collection.month}/"
+                                  f"{get_collection.year}")
+
                 table_data.append([order_select_number,
                                    order[0].order_id,
                                    order[1].item_name,
-                                   order[0].start_date,
-                                   order[0].end_date])
+                                   new_delivery,
+                                   new_collection])
                 found_orders.append(order[0])
                 found_items.append(order[1])
                 order_select_options.append(str(
@@ -1165,46 +1175,68 @@ def order_options_menu():
     will perform the selected option. Which are based on the selected
     order, returning back to the previous menu choices, or to the main menu
     """
-    order_option_input = input("Choose Option : ")
+    while True:
+        order_option_input = input("Choose Order Option : ")
 
-    if validate_choice(order_option_input,
-                       ["1", "2", "3", "4", "5"],
-                       f"{selected_customer.fname} {selected_customer.lname}",
-                       "customer"):
-        print("Where multiple fields are present, "
-              "leave blank to exclude from update")
+        if validate_choice(order_option_input,
+                           ["1", "2", "3", "4", "5"],
+                           (f"{selected_customer.fname} "
+                            f"{selected_customer.lname}"),
+                           "customer"):
+            print("Where multiple fields are present, "
+                  "leave blank to exclude from update")
 
-        # Change Name
-        if order_option_input == "1":
-            print("Despatches")
-            book_new_despatch_dates(selected_order)
+            # Change Name
+            if order_option_input == "1":
+                book_new_despatch_dates()
 
-        elif order_option_input == "2":
-            print("Finance")
-            get_invoice_history(selected_order)
+            elif order_option_input == "2":
+                print("Finance")
+                get_invoice_history()
 
-        elif order_option_input == "3":
-            print("Take Payment")
-            take_customer_payment(selected_order)
-        # Change Address
-        elif order_option_input == "4":
-            create_header_title(f"{selected_customer.fname} "
-                                f"{selected_customer.lname}")
-            selected_customer.customer_display()
-            customer_options_menu()
-        # Return to menu
-        elif order_option_input == "5":
-            main_menu_init(" Returning from customer ", "yellow")
+            elif order_option_input == "3":
+                print("Take Payment")
+                take_customer_payment()
+            # Change Address
+            elif order_option_input == "4":
+                create_header_title(f"{selected_customer.fname} "
+                                    f"{selected_customer.lname}")
+                selected_customer.customer_display()
+                customer_options_menu()
+            # Return to menu
+            elif order_option_input == "5":
+                main_menu_init(" Returning from customer ", "yellow")
+            break
 
 
-def book_new_despatch_dates(selected_order):
-    print("new despatch dates")
+def book_new_despatch_dates():
+    create_header_title(f"{selected_customer.fname} "
+                        f"{selected_customer.lname}")
+    selected_customer.customer_display(selected_order.order_id,
+                                        "selected_order")
+    cprint("{:-^80}".format(" Would put despatch modifications here "), "red")
+    selected_order.order_display(selected_item)
+    order_options_menu()
 
-def get_invoice_history(selected_order):
-    print("get invoice history")
 
-def take_customer_payment(selected_order):
-    print("Take some money")
+def get_invoice_history():
+    create_header_title(f"{selected_customer.fname} "
+                        f"{selected_customer.lname}")
+    selected_customer.customer_display(selected_order.order_id,
+                                        "selected_order")
+    cprint("{:-^80}".format(" Would put invoice history here "), "red")
+    selected_order.order_display(selected_item)
+    order_options_menu()
+
+
+def take_customer_payment():
+    create_header_title(f"{selected_customer.fname} "
+                        f"{selected_customer.lname}")
+    selected_customer.customer_display(selected_order.order_id,
+                                        "selected_order")
+    cprint("{:-^80}".format(" Would put payment options here "), "red")
+    selected_order.order_display(selected_item)
+    order_options_menu()
 
 
 def add_new_order(items_list, types_list):
