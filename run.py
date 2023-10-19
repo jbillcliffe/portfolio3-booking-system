@@ -956,7 +956,7 @@ def customer_options_menu():
                            "no_head"):
             print("Where multiple fields are present, "
                   "leave blank to exclude from update")
-
+            update_data = []
             # Create new order
             if customer_option_input == "1":
                 items_list, types_list = search_worksheet("items",
@@ -1657,6 +1657,7 @@ def save_new_order(start_date, end_date, payment_amounts):
                 create_header_title(f"{selected_customer.fname} "
                                     f"{selected_customer.lname}")
                 selected_customer.customer_display()
+                customer_options_menu()
 
             else:
                 print("Error in update Items")
