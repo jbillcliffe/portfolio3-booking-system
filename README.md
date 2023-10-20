@@ -489,6 +489,7 @@ To deploy this project:
 
 ### Python Libraries :
 
+**Sourced from PyPI**[^8]
 - colorama - Providing colour in the terminal
 - gspread - Allowing use of Google Sheets 
 - python-cfonts - For specialised fonts in the terminal
@@ -509,7 +510,7 @@ To deploy this project:
 [^5]: Font Awesome - A great source of free icons to use in many formats : https://www.fontawesome.com
 [^6]: CodeAnywhere - A cloud based IDE allowing you to create your projects anywhere at any time : https://www.codeanywhere.com
 [^7]: Heroku - A place to host projects. In this case to host the python terminal. : https://www.heroku.com
-
+[^8]: PyPI - the package index. Containg a whole wealth of python libraries to plug in: https://pypi.org/
 [^10]: W3Schools- Invaluable for providing details on elements and their attributes and so much HTML/CSS information : https://www.w3schools.com/
 [^11]: Stack Overflow - One of the most important resources for developers[^11] : https://stackoverflow.com/
 [^12]: Stack Overflow post - Here I gained the information to get one date and determine the difference between the two for hire length:https://stackoverflow.com/questions/5464410/how-to-tell-if-a-date-is-between-two-other-dates
