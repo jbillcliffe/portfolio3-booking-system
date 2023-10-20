@@ -32,8 +32,8 @@ More people are turning to rentals as the world finances are in disarray and the
     3. You can return to the main menu at nearly all times by just entering M/m into valid fields.
     4. The process is intuitive, it guides you through.
 - I want to customise my stock
-    - Using Google Sheets, the stock can be anything you want.
-    - Set a type, set a name, pricing and that is all you need.
+- [x]  Using Google Sheets, the stock can be anything you want.
+- [x]  Set a type, set a name, pricing and that is all you need.
 
 ## Wireframe Program Flow
 Program flow wireframe was created using Figma[^1]. The image shows the processes through the stages of the software.
@@ -124,7 +124,6 @@ in a separate window. The footer also includes the same blue hover as the menu, 
 
 ### Search Customer
 
-
 - [x]  Validate search option choice for correct entries?           
 - [x]  Validate search option choice against no entry?             
 - [x]  Re-entry when failed validation on choice?                   
@@ -132,10 +131,112 @@ in a separate window. The footer also includes the same blue hover as the menu, 
 - [x]  "Search Input" Ask again for input?                          
 - [x]  Ask for input again into same category (eg. Customer Name)?  
 - [x]  Provide feedback when searching?                             
-- [x]  Show search results when available.                          
+- [x]  Show search results when available?                       
 - [x]  Load customer without choice if only one order?              
-- [x]  Choose customer from search result                           
+- [x]  Choose customer from search result?
+- [x]  Search by Customer Name?
+- [x]  Search by Address?
+- [x]  Search by Postcode?
+- [x]  Search by Customer Number?
+- [x]  Search by Order Number?
+- [x]  Search by Invoice Number?
+- [x]  Search by Item Number?
 
+### Repair Item
+
+- [x]  Display repairs list after loading from menu?
+- [x]  Ask to choose repair? (1, 2, 3 ...)
+- [x]  Ask if repair to be completed on one item, when only 1 available?
+        (It does this by prompting Y/N/)
+- [x]  Give feedback that repair is saving?
+- [x]  Give feedback when repair save is complete?
+
+### Customer Screen
+
+#### Options - Add New Order
+
+- [x]  Display type options?
+- [x]  Validate wrong/empty type choices?
+- [x]  Display item choices?
+- [x]  Show available items based on type?
+- [x]  Validate wrong/empty item choices?
+- [x]  Display date picker?
+
+##### Options - Add New Order - Dates
+
+- [x]  Delivery format adhered to?
+- [x]  Empty delivery invalid?
+- [x]  Delivery date (eg. 33/55/2001) invalid?
+- [x]  Feedback a valid delivery?
+       (Does this by turning text green)
+- [x]  Collection format adhered to?
+- [x]  Empty Collection invalid?
+- [x]  Collection date (eg. 33/55/2001) invalid?
+- [x]  Feedback a valid collection?
+       (Does this by going to item pick)
+- [x]  Delivery before today invalid?
+- [x]  Collection before today invalid?
+
+##### Options - Add New Order - Pick an Item
+
+- [x]  Display available items to choose from?
+- [x]  Validate on choice not there?
+- [x]  Validate on empty entry?
+
+##### Options - Add New Order - Payment on order confirmation
+
+- [x]  Clearly display details of the order for the program use?
+- [x]  Display dummy cards for payment and show what will be the result of each?
+- [x]  Validate empty card entry?
+- [x]  Validate wrong card entry?
+- [x]  Test 1111 (Decline) card?
+- [x]  Test 2222 (Stolen) card?
+- [x]  Test 0000 (Successful) card?
+
+#### Options - View Orders
+
+##### Options - View Orders - None
+
+- [x]  View orders when none?
+       (Does this by returning message to customer display)
+
+ ##### Options - View Orders - One      
+
+- [x]  View orders when single present?
+- [x]  Display with auto select?
+- [x]  Enable customer options menu?
+
+##### Options - View Orders - Multiple   
+
+- [x]  View orders when multiple present?
+- [x]  Select option from list?
+- [x]  Display order selected?
+- [x]  Enable order options menu?
+- [x]  Act upon choice?
+
+#### Options - Change Name
+
+- [x]  Change name loads choices?
+- [x]  First name empty?
+- [x]  First name populated?
+- [x]  Last name empty?
+- [x]  Last name populated?
+- [x]  Feedback if no change?
+- [x]  Reload after changes?
+
+#### Options - Change Address
+
+- [x]  Change address loads choices?
+- [x]  Address line 1 empty?
+- [x]  Address line 1 populated?
+- [x]  Postcode empty?
+- [x]  Postcode populated?
+- [x]  Feedback if no change?
+- [x]  Reload after changes?
+
+#### Options - Main Menu
+
+- [x]  Return to main menu
 
 ## Heroku
 
