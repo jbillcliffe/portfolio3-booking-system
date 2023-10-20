@@ -102,10 +102,21 @@ in a separate window. The footer also includes the same blue hover as the menu, 
 
 ## PEP8 Linter
 
+Using the Code Institute Python Linter[^100]. I ran each of my .py files through it. All came back successfully with no issues.
+
+|  File        | Result                                                                      |
+|--------------|-----------------------------------------------------------------------------|
+| run.py       | [View](readme/linter/run-linter.png "Result of run.py Linter").             |
+| customers.py | [View](readme/linter/customers-linter.png "Result of customers.py Linter"). |
+| items.py     | [View](readme/linter/items-linter.png "Result of items.py Linter").         |
+| loading.py   | [View](readme/linter/loading-linter.png "Result of loading.py Linter").     |
+| orders.py    | [View](readme/linter/orders-linter.png "Result of orders.py Linter").       |
+
 ## Manual Testing
 
-### Main Menu
+This section is broken down into the different areas of the program and to how it is expected to function.
 
+### Main Menu
 
 - [x] Invalid option choice returns error?     
 - [x] Invalid choice returns to the question?  
