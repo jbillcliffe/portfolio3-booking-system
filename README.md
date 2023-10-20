@@ -106,6 +106,7 @@ in a separate window. The footer also includes the same blue hover as the menu, 
 
 ### Main Menu
 
+|---------|------------------------------------------|
 |   [x]   | Invalid option choice returns error?     |
 |   [x]   | Invalid choice returns to the question?  |
 |   [x]   | Navigates to Create Customer?            |
@@ -114,6 +115,7 @@ in a separate window. The footer also includes the same blue hover as the menu, 
 
 ### Create Customer
 
+|---------|------------------------------------------------------|
 |   [x]   | Allow inputs to fields for name and address?         |
 |   [x]   | Invalid choice returns to the question?              |
 |   [x]   | Validate inputs? (Checks if not empty and responds)  |
@@ -123,6 +125,7 @@ in a separate window. The footer also includes the same blue hover as the menu, 
 
 ### Search Customer
 
+|---------|--------------------------------------------------------------|
 |   [x]   | Validate search option choice for correct entries?           |
 |   [x]   | Validate search option choice against no entry?              |
 |   [x]   | Re-entry when failed validation on choice?                   |
