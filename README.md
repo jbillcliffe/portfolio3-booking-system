@@ -76,6 +76,8 @@ The overall palette was picked with the website tools which enabled complementar
 
 ## Existing Features
 
+###
+
 ### Footer
 A responsive social media links area included in the footer of the page, it scales the size of the Fontawesome[^17]
 icons decreases/increases on the pages. Each one has an aria-label which describes where the link goes to and explains that it will open
@@ -102,24 +104,40 @@ in a separate window. The footer also includes the same blue hover as the menu, 
 
 ## Manual Testing
 
+### Main Menu
+
+|   [x]   | Invalid option choice returns error?     |
+|   [x]   | Invalid choice returns to the question?  |
+|   [x]   | Navigates to Create Customer?            |
+|   [x]   | Navigates to Search Customer?            |
+|   [x]   | Navigates to Item Repair?                |
+
+### Create Customer
+
+|   [x]   | Allow inputs to fields for name and address?         |
+|   [x]   | Invalid choice returns to the question?              |
+|   [x]   | Validate inputs? (Checks if not empty and responds)  |
+|   [x]   | Display process in action of adding to Google Sheet? |
+|   [x]   | When created go to customer?                         |
+|   [x]   | Allow customer to select customer menu options?      |
+
+### Search Customer
+
+|   [x]   | Validate search option choice for correct entries?           |
+|   [x]   | Validate search option choice against no entry?              |
+|   [x]   | Re-entry when failed validation on choice?                   |
+|   [x]   | "Search Input" Check for blank entry and throw error?        |
+|   [x]   | "Search Input" Ask again for input?                          |
+|   [x]   | Ask for input again into same category (eg. Customer Name)?  |
+|   [x]   | Provide feedback when searching?                             |
+|   [x]   | Show search results when available.                          |
+|   [x]   | Load customer without choice if only one order?              |
+|   [x]   | Choose customer from search result                           |
+
+
 ## Heroku
 
 # Bugs & Fixes
-
-
-
-
-## Lighthouse, Google Chrome Inspect (F12) Mode
-
-Scoring for Lighthouse was done on the Index (landing) page, and what would be the most demanding page (contact.html) :
-|  Page   |  Source |                                                                                                            |
-| ------- | ------- | ---------------------------------------------------------------------------------------------------------- |
-| Index   | Desktop | [View](assets/readme/lighthouse/index-lighthouse-desktop.png "Desktop Lighthouse score on index.html")     |
-| Index   | Mobile  | [View](assets/readme/lighthouse/index-lighthouse-mobile.png "Mobile Lighthouse score on index.html")       |
-| Contact | Desktop | [View](assets/readme/lighthouse/contact-lighthouse-desktop.png "Desktop Lighthouse score on contact.html") |
-| Contact | Mobile  | [View](assets/readme/lighthouse/contact-lighthouse-mobile.png "Mobile Lighthouse score on contact.html")   |
-
-The lighthouse testing did flag an issue with the iframe for the map, not having a title [View](assets/readme/lighthouse/contact-lighthouse-issue-1.png "Lighthouse missing iframe title"), remedied by adding a title to the iframe.
 
 # Deployment
 
@@ -140,8 +158,18 @@ The lighthouse testing did flag an issue with the iframe for the map, not having
 - Figma[^1]
 - Heroku ********* REF
 
+### Python Libraries :
+
+- Google Sheets
+- colorama 
+- gspread
+- python-cfonts
+- termcolor
+- terminaltables
+
 ## Website Tutorials/References
 - W3Schools[^26] - Invaluable for providing details on elements and their attributes and so much HTML/CSS information.
+- StackOverflow
 
 # References 
 [^1]: Figma is a free website for designing storyboards and wireframes : https://www.figma.com/
