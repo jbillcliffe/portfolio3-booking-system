@@ -830,8 +830,8 @@ def item_repair():
     table_data = [
         [
             (colored("{:^10}".format(""), "blue")),
-            (colored("{:^15}".format("Item ID"), "blue")),
-            (colored("{:^30}".format("Item"), "blue")),
+            (colored("{:^10}".format("Item ID"), "blue")),
+            (colored("{:^20}".format("Item"), "blue")),
             (colored("{:^15}".format("Date Booked"), "blue"))]]
 
     # Here date is reformatted for a more localised display and added to
@@ -844,8 +844,8 @@ def item_repair():
         table_data.append(
             [
                 (colored("{:^10}".format(counter), "yellow")),
-                (colored("{:^15}".format(x[0]), "yellow")),
-                (colored("{:^30}".format(x[2]), "yellow")),
+                (colored("{:^10}".format(x[0]), "yellow")),
+                (colored("{:^20}".format(x[2]), "yellow")),
                 (colored("{:^15}".format(repair_date_format), "yellow"))])
         counter += 1
 

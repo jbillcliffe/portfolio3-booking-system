@@ -30,56 +30,56 @@ class Item:
         item_data = [
             [
                 (colored("{:<20}".format("Customer ID"), "cyan")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                     selected_customer.customer_id), "cyan"))],
             [
                 (colored("{:<20}".format("Address"), "cyan")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                     selected_customer.address), "cyan"))],
             [
                 (colored("{:<20}".format("Postcode"), "cyan")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                     selected_customer.postcode), "cyan"))],
             [
                 (colored("{:<20}".format("Item ID"), "yellow")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                          self.item_id),
                          "yellow"))],
             [
                 (colored("{:<20}".format("Item"), "yellow")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                          f"{self.item_name} ({self.item_type})"),
                          "yellow"))],
             [
                 (colored("{:<20}".format("Delivery"), "red")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                          start_date),
                          "red"))],
             [
                 (colored("{:<20}".format("Collection"), "red")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                          end_date),
                          "red"))],
             [
                 (colored("{:<20}".format("Initial Cost"), "magenta")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                          f"{self.item_start_cost}"),
                          "magenta"))],
             [
                 (colored("{:<20}".format("Per Week"), "magenta")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                          self.item_week_cost),
                          "magenta"))],
             [
                 (colored("{:<20}".format(
                          f"Remaining {payment_amounts[0]} Weeks"),
                          "magenta")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                          f"£{payment_amounts[1]}"),
                          "magenta"))],
             [
                 (colored("{:<20}".format("Total Cost"), "magenta")),
-                (colored("{:>57}".format(
+                (colored("{:>50}".format(
                          f"£{payment_amounts[2]}"), "magenta"))]]
 
         item_table = SingleTable(item_data)
