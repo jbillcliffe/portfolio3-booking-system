@@ -1370,7 +1370,6 @@ def order_option_chooser(item_table_data, option_counter, full_matched_list):
             return create_new_order(order_option_selected,
                                     item_table_data,
                                     full_matched_list)
-        
 
 
 def display_order_date_choose(order_selection):
