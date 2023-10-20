@@ -10,7 +10,7 @@
 
 An initial prototype for a booking system. To create orders for customers and provide them with hired equipment. This example is based on a company hiring mobility equipment. However, the stock is based on what your provide to it. Flexibility is key to this software.
 
-More people are turning to rentals as the world finances are in disarray and they can have your product at a much more managable cost. 
+More people are turning to rentals as the world finances are in disarray and they can have your product at a much more manageable  cost. 
 
 **This software will improve your hire bookings right from the start!**
 
@@ -24,7 +24,7 @@ More people are turning to rentals as the world finances are in disarray and the
 
 ## User Stories
 - I want reliable software
-    1. Bug checking is imperitive.
+    1. Bug checking is imperative.
     2. Simple but effective. Simplicity makes for fewer errors!
 - I want to be able to navigate freely and quickly through the software
     1. The main menu takes you to the core details.
@@ -112,7 +112,7 @@ A customer being created has to have an element of flexibility. It cannot be ass
 **Search Customer**
 
 [Searching for customers needs to be extensive](readme/customer-search/customer-search-init.png). Searching for multiple or individual customers based on unique or "vague" data. Vague could be referred to as searching for the name "red" but there are many iterations of first and last names for people which include this.
-It needs to validate fields against [blank](readme/customer-search/customer-search-validate-none.png) and [incorrect](readme/customer-search/customer-search-validate-wrong.png) entries for choosing a search criterea. Then upon choosing the search method it has to ensure again that a [blank](readme/customer-search/customer-search-blank-search-result.png) search cannot be made. Which it does.
+It needs to validate fields against [blank](readme/customer-search/customer-search-validate-none.png) and [incorrect](readme/customer-search/customer-search-validate-wrong.png) entries for choosing a search criteria. Then upon choosing the search method it has to ensure again that a [blank](readme/customer-search/customer-search-blank-search-result.png) search cannot be made. Which it does.
 
 Depending on the result, will determine what it does next. If it is performing a [unique search such as customer number](readme/customer-search/customer-single-find-customer-number.png) you will only have one result which will [auto select the customer and go straight to their page](readme/customer-search/customer-screen-on-single-find.png).
 
@@ -163,7 +163,7 @@ The most complex part of the process, with multiple stages and multiple types of
 - [Validated against incorrect format](readme/create-order/despatch/despatch-validate-format.png)
 - [Validates against time travel relative to date of booking](readme/create-order/despatch/despatch-validate-date.png)
 - Blank entry, validates as an incorrect format
-- [Seperate collection validation, that cannot be before delivery](readme/create-order/despatch/despatch-validate-collection.png)
+- [Separate collection validation, that cannot be before delivery](readme/create-order/despatch/despatch-validate-collection.png)
 
 As long as all the above are met successfully :
 ![Successful date selection for despatches](readme/create-order/despatch/despatch-validate-success.png)
@@ -176,7 +176,7 @@ Once again [validated against blank and wrong choices](readme/create-order/item/
 NB. Not real payments for many security reasons and not for commercial gain!
 ![Order Confirmation](readme/create-order/payment/order-confirmation.png)
 
-Payment can be attemped on [Declining](readme/create-order/payment/payment-decline-card.png), [Stolen](readme/create-order/payment/payment-security-card.png) and [Successful](readme/create-order/payment/payment-success-feedback.png) cards.
+Payment can be attempted on [Declining](readme/create-order/payment/payment-decline-card.png), [Stolen](readme/create-order/payment/payment-security-card.png) and [Successful](readme/create-order/payment/payment-success-feedback.png) cards.
 
 Validation is also made, by ensuring no [blank or incorrect entries are made](readme/create-order/payment/payment-validation.png).
 
@@ -187,7 +187,7 @@ If successful, it shows a loading animation before returning to the customer, be
 
 
 ### Footer - Sourced from Portfolio 1[^4]
-A responsive social media links area included in the footer of the page, it scales the size of the Fontawesome[^17]
+A responsive social media links area included in the footer of the page, it scales the size of the FontAwesome[^17]
 icons decreases/increases on the pages. Each one has an aria-label which describes where the link goes to and explains that it will open
 in a separate window. The footer also includes the same blue hover as the menu, for consistency and clarity to the user.
 
@@ -505,7 +505,7 @@ To deploy this project:
 [^1]: Figma is a free website for designing storyboards and wireframes : https://www.figma.com/
 [^2]: LOGO website used for creating a logo and branding from scratch for free : https://app.logo.com/
 [^3]: Coolors website for creating free colour themes : https://www.coolors.com/
-[^4]: Renterprise Portfolio 1 - My own web design I created as part of my first project for Code Institude. This software is an extension of the idea of Renterprise: https://github.com/jbillcliffe/portfolio1-renterprise/
+[^4]: Renterprise Portfolio 1 - My own web design I created as part of my first project for Code Institute. This software is an extension of the idea of Renterprise: https://github.com/jbillcliffe/portfolio1-renterprise/
 [^5]: Font Awesome - A great source of free icons to use in many formats : https://www.fontawesome.com
 [^6]: CodeAnywhere - A cloud based IDE allowing you to create your projects anywhere at any time : https://www.codeanywhere.com
 [^7]: Heroku - A place to host projects. In this case to host the python terminal. : https://www.heroku.com
