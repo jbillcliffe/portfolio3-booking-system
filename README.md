@@ -85,19 +85,18 @@ The overall palette was picked with the website tools which enabled complementar
 
 ## Existing Features
 
-There are a lot of existing features so it is best to tabulate them with their results :
+There are a lot of existing features so it is best to separate them with their results :
 
-|  Feature       |                                                                                                   |
-|----------------|---------------------------------------------------------------------------------------------------|
-|Change Address| <p>[Enter a string to change a value](readme/change-address/change-address-1.png),|
-|| [or leave it blank for no change](readme/change-address/change-address-2.png)|
-|| Here the address is changed, but the empty postcode field prevents that being changed too.|
-|| Feedback is then provided to say it is updated, the change is then made in the customer display. </p>|
-|| <br>|
-|Change Name| <p>[A field can be left blank, or entered in](readme/change-address/change-name-1.png), if it is|
-|| left blank. It will not update this section and it will provide feedback to say so. As seen in|
-|| the previous image. After an update is made. It will give an "updated response" and refresh the|
-|| customer display, including header, as seen [here](readme/change-address/change-name-2.png).</p>|
+**Change Address**
+[Enter a string to change a value](readme/change-address/change-address-1.png), [or leave it blank for no change](readme/change-address/change-address-2.png).
+Here the address is changed, but the empty postcode field prevents that being changed too.
+Feedback is then provided to say it is updated, the change is then made in the customer display.
+
+---
+
+**Change Name** 
+[A field can be left blank, or entered in](readme/change-address/change-name-1.png), if it is left blank. It will not update this section and it will provide feedback to say so. As seen in the previous image. 
+After an update is made. It will give an "updated response" and refresh the customer display, including header, as seen [here](readme/change-address/change-name-2.png).</p>|
 
 ### Footer
 A responsive social media links area included in the footer of the page, it scales the size of the Fontawesome[^17]
