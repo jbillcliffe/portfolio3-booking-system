@@ -24,6 +24,57 @@
             flex-wrap: wrap;
         }
 
+        /* Footer styling */
+        /*Full page width, fixed 100px height (height matches header). Flex row display
+        with centred content and the background colour in line with the theme top shadow 
+        to help content pop*/
+        footer {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            background-color: #2D8A60;
+            box-shadow: 0px -3px 1px 0px rgba(57, 61, 63, 0.8);
+            margin-top: 25px;
+        }
+
+        /* social-networks ul css set the text to be centre aligned in a flex row 
+        with centred items*/
+        ul.social-networks {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row;
+        }
+
+        /*Each list item of the social networks unorganised list carries the flex 
+        display has padding (from top and bottom of social networks class, which is the
+        height of the footer*/
+        .social-networks>li {
+            display: flex;
+            padding: 25px;
+        }
+
+        /*styling for the font awesome "i" tags, setting text field size, font colour
+        line height to create a centring effect*/
+        .social-networks i {
+            font-size: 200%;
+            height: 50px;
+            width: 50px;
+            line-height: 50px;
+            color: #FFFFFF;
+            text-shadow: 0px 1px 5px #000000;
+        }
+
+        /*When hovering the social media icons, turn them the light blue which is part
+        of the theme.*/
+        .social-networks i:hover {
+            color: #C9F0FF;
+        }
+
+
         /**
         * Default styles for xterm.js
         */

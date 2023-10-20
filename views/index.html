@@ -2,6 +2,34 @@
     <button onclick="window.location.reload()">Run Program</button>
     <div id="terminal"></div>
 
+    <footer>
+        <!-- unordered list for social network icons -->
+        <ul class="social-networks">
+            <!-- each li item contains a fontawesome icon for each company, aria label describes where link goes and states
+                that it will open in a blank tab.-->
+            <li>
+                <a href="https://facebook.com" title="Visit my Facebook page (opens in a new tab)" target="_blank"
+                    rel="noopener" aria-label="Visit my Facebook page (opens in a new tab)"><i
+                    class="fab fa-facebook"></i></a>
+            </li>
+            <li>
+                <a href="https://twitter.com" target="_blank" rel="noopener"
+                    title="Visit my Twitter page (opens in a new tab)"
+                    aria-label="Visit my Twitter page (opens in a new tab)"><i class="fab fa-twitter"></i></a>
+            </li>
+            <li>
+                <a href="https://youtube.com" target="_blank" rel="noopener"
+                    title="Visit my YouTube page (opens in a new tab)"
+                    aria-label="Visit my YouTube page (opens in a new tab)"><i class="fab fa-youtube"></i></a>
+            </li>
+            <li>
+                <a href="https://instagram.com" target="_blank" rel="noopener"
+                    title="Visit my Instagram page (opens in a new tab)"
+                    aria-label="Visit my Instagram page (opens in a new tab)"><i class="fab fa-instagram"></i></a>
+            </li>
+        </ul>
+    </footer>
+    
     <script>
         var term = new Terminal({
             cols: 80,
