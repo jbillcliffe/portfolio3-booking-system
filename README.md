@@ -40,7 +40,7 @@ Program flow wireframe was created using Figma[^1]. The image shows the processe
 Some are still in design phase. Majority implemented.
 ![Image of wireframe created for Renterprise software](readme/design/renterprise-flow.png)
 
-## Logo
+## Logo - Redocumented from Portfolio 1.
 The logo was created using the website LOGO.com[^2]. It has been pulled from my previous Renterprise project for Portfolio 1[^4].
 
 ### Logo Process - Redocumented from Portfolio 1.
@@ -64,7 +64,16 @@ This was then the branding provided.
 
 ![Full branding theme for Renterprise](readme/design/initial-brand-board.png)
 
-## Breakdown of Design
+## Responsive
+
+This was going to be impossible to fully achieve due to the terminal window being a fixed size.
+Although to implement a dynamic terminal size and then dynamic code based on width would have been very problematic too.
+The only device that has an issue with displaying all the content is mobile. However, this can be resolved if the device is
+in **LANDSCAPE** mode.
+
+![Am I Responsive?](readme/design/responsive.png)
+
+## Breakdown of Design - Redocumented from Portfolio 1.
 
 ### Colour Theme
 Colour theme was initially chosen and subsequently revised with Coolors.[^3] 
@@ -76,7 +85,19 @@ The overall palette was picked with the website tools which enabled complementar
 
 ## Existing Features
 
-###
+There are a lot of existing features so it is best to tabulate them with their results :
+
+|  Feature       |                                                                                                      |
+|----------------|------------------------------------------------------------------------------------------------------|
+| Change Address | [Enter a string to change a value](readme/change-address/change-address-1.png),<br>                  |
+| <br>           | [or leave it blank for no change](readme/change-address/change-address-2.png)<br>                    |
+| <br>           | Here the address is changed, but the empty postcode field prevents that being changed too.           |
+| <br>           | Feedback is then provided to say it is updated, the change is then made in the customer display.     |
+| <br>           | <br>                                                                                                 |
+| Change Name    | [A field can be left blank, or entered in](readme/change-address/change-name-1.png), if it is <br>   |
+| <br>           | left blank. It will not update this section and it will provide feedback to say so. As seen in <br>  |
+| <br>           | the previous image. After an update is made. It will give an "updated response" and refresh the <br> |
+| <br>           | customer display, including header, as seen [here](readme/change-address/change-name-2.png).<br>     |
 
 ### Footer
 A responsive social media links area included in the footer of the page, it scales the size of the Fontawesome[^17]
@@ -111,6 +132,12 @@ Using the Code Institute Python Linter[^100]. I ran each of my .py files through
 | items.py     | [View](readme/linter/items-linter.png "Result of items.py Linter").         |
 | loading.py   | [View](readme/linter/loading-linter.png "Result of loading.py Linter").     |
 | orders.py    | [View](readme/linter/orders-linter.png "Result of orders.py Linter").       |
+
+I do notice however, that in the CodeAnywhere environment it flagged up two unused variables.
+This is true, the intention was to implement them but the scope would go beyond the timeframe. So they
+would be part of future features.
+
+![Two unused variables. To be used in a later version](readme/errors/unused-variables-error.png)
 
 ## Manual Testing
 
