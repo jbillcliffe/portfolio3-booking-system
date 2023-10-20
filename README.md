@@ -106,36 +106,35 @@ in a separate window. The footer also includes the same blue hover as the menu, 
 
 ### Main Menu
 
-|---------|------------------------------------------|
-| - [x]   | Invalid option choice returns error?     |
-| - [x]   | Invalid choice returns to the question?  |
-| - [x]   | Navigates to Create Customer?            |
-| - [x]   | Navigates to Search Customer?            |
-| - [x]   | Navigates to Item Repair?                |
+
+- [x] Invalid option choice returns error?     
+- [x] Invalid choice returns to the question?  
+- [x] Navigates to Create Customer?            
+- [x] Navigates to Search Customer?            
+- [x] Navigates to Item Repair?                
 
 ### Create Customer
 
-|---------|------------------------------------------------------|
-| - [x]   | Allow inputs to fields for name and address?         |
-| - [x]   | Invalid choice returns to the question?              |
-| - [x]   | Validate inputs? (Checks if not empty and responds)  |
-| - [x]   | Display process in action of adding to Google Sheet? |
-| - [x]   | When created go to customer?                         |
-| - [x]   | Allow customer to select customer menu options?      |
+- [x]  Allow inputs to fields for name and address?         
+- [x]  Invalid choice returns to the question?              
+- [x]  Validate inputs? (Checks if not empty and responds)  
+- [x]  Display process in action of adding to Google Sheet? 
+- [x]  When created go to customer?                         
+- [x]  Allow customer to select customer menu options?      
 
 ### Search Customer
 
-|---------|--------------------------------------------------------------|
-| - [x]   | Validate search option choice for correct entries?           |
-| - [x]   | Validate search option choice against no entry?              |
-| - [x]   | Re-entry when failed validation on choice?                   |
-| - [x]   | "Search Input" Check for blank entry and throw error?        |
-| - [x]   | "Search Input" Ask again for input?                          |
-| - [x]   | Ask for input again into same category (eg. Customer Name)?  |
-| - [x]   | Provide feedback when searching?                             |
-| - [x]   | Show search results when available.                          |
-| - [x]   | Load customer without choice if only one order?              |
-| - [x]   | Choose customer from search result                           |
+
+- [x]  Validate search option choice for correct entries?           
+- [x]  Validate search option choice against no entry?             
+- [x]  Re-entry when failed validation on choice?                   
+- [x]  "Search Input" Check for blank entry and throw error?        
+- [x]  "Search Input" Ask again for input?                          
+- [x]  Ask for input again into same category (eg. Customer Name)?  
+- [x]  Provide feedback when searching?                             
+- [x]  Show search results when available.                          
+- [x]  Load customer without choice if only one order?              
+- [x]  Choose customer from search result                           
 
 
 ## Heroku
